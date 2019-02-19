@@ -1,0 +1,29 @@
+异常数据：
+level_id = -
+TR = 5;4/8;7
+gearbox = AMT/AT/AT;DCT/CVT/DCT/MT/MT;AT
+if_charging = L/T
+price_level = 10-15W/15-20W/20-25W/25-35W/35-50W/50-75W/5-8W/5WL/8-10W
+price = -
+fuel_type_id = -
+engine_torque = -/(155/140)
+rated_passenger = 4月5日/5月7日/5月8日/6月7日/6月8日/7月8日
+
+
+下一阶段：
+每个算法返回需要的数据list，然后read_train开始读值，默认date和car
+
+
+1/28
+0.泛化预测结果
+1.加权线性回归(chapter8)
+2.看看还有啥能用的算法(chapter7-adaboost)
+3.惩罚系数lambda
+4.神经网络？
+5.支持矢量机？
+6.PCA
+
+
+2/25
+把线性回归的模式用成员变量表示
+

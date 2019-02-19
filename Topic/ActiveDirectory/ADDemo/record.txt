@@ -1,0 +1,33 @@
+2018.1.3
+1.
+200times query attribute each time
+5 user result
+
+no paging
+objectguid 16ms
+objectguid|sn|givenname|mail 43ms
+
+paging-2
+objectguid 22ms
+objectguid|sn|givenname|mail 69ms
+
+paging-5
+objectguid 16ms
+objectguid|sn|givenname|mail 45ms
+
+
+paging-20
+objectguid 17ms
+objectguid|sn|givenname|mail 45ms
+
+paging-1000
+objectguid 16ms
+objectguid|sn|givenname|mail 50ms
+
+
+2.
+for many users (more than 50)
+paging-1000/nopaging
+objectguid|sn|givenname|mail 151ms
+paging-2
+objectguid|sn|givenname|mail 263ms

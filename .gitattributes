@@ -1,4 +1,4 @@
-*.MATLAB linguist-language=C++
+*.m linguist-language=C++
 # Auto detect text files and perform LF normalization
 * text=auto
 

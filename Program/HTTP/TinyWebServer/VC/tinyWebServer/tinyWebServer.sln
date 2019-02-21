@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyWebServer", "tinyWebServer.vcxproj", "{49565EE7-3663-4878-B651-C7B25D5AB7F1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cgi", "..\cgi\cgi.vcxproj", "{8D45EBEB-F5FF-4439-B31A-383410C5458E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Debug|Win32.Build.0 = Debug|Win32
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Debug|x64.ActiveCfg = Debug|x64
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Debug|x64.Build.0 = Debug|x64
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Release|Win32.ActiveCfg = Release|Win32
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Release|Win32.Build.0 = Release|Win32
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Release|x64.ActiveCfg = Release|x64
+		{49565EE7-3663-4878-B651-C7B25D5AB7F1}.Release|x64.Build.0 = Release|x64
+		{8D45EBEB-F5FF-4439-B31A-383410C5458E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8D45EBEB-F5FF-4439-B31A-383410C5458E}.Debug|Win32.Build.0 = Debug|Win32
+		{8D45EBEB-F5FF-4439-B31A-383410C5458E}.Debug|x64.ActiveCfg = Debug|Win32
+		{8D45EBEB-F5FF-4439-B31A-383410C5458E}.Release|Win32.ActiveCfg = Release|Win32
+		{8D45EBEB-F5FF-4439-B31A-383410C5458E}.Release|Win32.Build.0 = Release|Win32
+		{8D45EBEB-F5FF-4439-B31A-383410C5458E}.Release|x64.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

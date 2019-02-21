@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "csapp.h"
 
 
@@ -31,8 +32,9 @@ int main(int argc, char **argv)
 		getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE, 0);
 		printf("Accepted connection from (%s, %s)\n", hostname, port);
 		doit(connfd);
-		close(connfd);
+		WSACleanup();
 	}
+	WSACleanup();
 }
 
 void doit(int fd)
@@ -48,7 +50,7 @@ void doit(int fd)
 	printf("Request headers:\n");
 	printf("%s", buf);
 	sscanf(buf, "%s %s %s", method, uri, version);
-	if (strcasecmp(method, "GET"))
+	if (strcmp(method, "GET"))
 	{
 		clienterror(fd, method, "501", "Not implemented", "Tiny does not implement this method");
 		return;
@@ -66,7 +68,7 @@ void doit(int fd)
 	if (is_static)
 	{
 		/*Serve static content*/
-		if (!(S_ISREG(sbuf.st_mode)) || !(S_IRUSR & sbuf.st_mode))
+		if (!(S_ISREG(sbuf.st_mode)))// || !(S_IRUSR & sbuf.st_mode))
 		{
 			clienterror(fd, method, "403", "Forbidden", "Tiny could not read this file");
 			return;
@@ -76,7 +78,7 @@ void doit(int fd)
 	else
 	{
 		/*Serve dynamic content*/
-		if (!(S_ISREG(sbuf.st_mode) || !(S_IXUSR & sbuf.st_mode)))
+		if (!(S_ISREG(sbuf.st_mode)))// || !(S_IXUSR & sbuf.st_mode)))
 		{
 			clienterror(fd, method, "403", "Forbidden", "Tiny could not run the CGI program");
 			return;
@@ -131,7 +133,7 @@ int parse_uri(char * uri, char * filename, char * cgiargs){
 	}
 	else{
 		/*Dynamic content*/
-		ptr = index(uri, '?');
+		ptr = strstr(uri, "?");
 		if(ptr){
 			strcpy(cgiargs, ptr+1);
 			*ptr = '\0';
@@ -148,8 +150,8 @@ int parse_uri(char * uri, char * filename, char * cgiargs){
 
 
 void serve_static(int fd, char * filename, int filesize){
-	int srcfd;
-	char *srcp, filetype[MAXLINE], buf[MAXBUF];
+	FILE * srcfd;
+	char srcp[MAXBUF], filetype[MAXLINE], buf[MAXBUF];
 
 	/*Send response headers to client*/
 	get_filetype(filename, filetype);
@@ -163,11 +165,10 @@ void serve_static(int fd, char * filename, int filesize){
 	printf("%s", buf);
 
 	/*Send response body to client*/
-	srcfd = open(filename, O_RDONLY, 0);
-	srcp = mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
-	close(srcfd);
+	srcfd = fopen(filename, "a+");
+	fread(srcp, 1, sizeof(srcp)-1, srcfd);
+	fclose(srcfd);
 	rio_writen(fd, srcp, filesize);
-	munmap(srcp, filesize);
 }
 
 void get_filetype(char *filename, char *filetype){
@@ -193,10 +194,33 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 	sprintf(buf, "Server: Tiny Web Server\r\n");
 	rio_writen(fd, buf, strlen(buf));
 
-	if(fork() == 0){
-		setenv("QUERY_STRING", cgiargs, 1);
-		dup2(fd, STDOUT_FILENO);
-		execve(filename, emptylist, environ);
-	}
-	wait(NULL);
+	//if(fork() == 0){
+	//	setenv("QUERY_STRING", cgiargs, 1);
+	//	dup2(fd, STDOUT_FILENO);
+	//	execve(filename, emptylist, environ);
+	//}
+	LPSECURITY_ATTRIBUTES lpProcessAttributes;
+	STARTUPINFO si;  
+	PROCESS_INFORMATION pi;  
+
+	ZeroMemory(&si, sizeof(si));  
+	ZeroMemory(&pi, sizeof(pi));  
+
+	char szEnv[MAXBUF];
+	sprintf(szEnv,"QUERY_STRING=%s", cgiargs);
+
+	CreateProcess(L"cgi-bin.exe",
+		L"",
+		lpProcessAttributes,
+		NULL,
+		TRUE,
+		0,
+		szEnv,
+		NULL,
+		&si,
+		&pi
+		);
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	CloseHandle ( pi.hProcess );
+	CloseHandle ( pi.hThread );
 }

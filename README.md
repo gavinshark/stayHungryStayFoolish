@@ -1,4 +1,4 @@
-# This is a version for coding study with some tiny projects
+# This is a version for coding study with tiny projects
 1. Algorithm
 - MachineLearning
 	- TainChi
@@ -9,6 +9,8 @@
 2. Program
 - HTTP
 	- TinyWebServer(C)
+- Threads
+	- singleton(C++)
 	
 3. Topic
 - ActiveDirectory

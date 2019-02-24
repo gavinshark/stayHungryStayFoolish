@@ -9,8 +9,8 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char *buf, *p;
-	char arg1[MAXLINE], arg2[MAXLINE], content[MAXBUF];
+	char *buf=NULL, *p=NULL;
+	char arg1[MAXLINE]={'\0'}, arg2[MAXLINE]={'\0'}, content[MAXBUF]={'\0'};
 	int n1 = 0, n2 = 0;
 	
 	if (buf = getenv("QUERY_STRING"))
@@ -33,7 +33,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf("Content-type: text/html\r\n\r\n");
 	printf("%s", content);
 	fflush(stdout);
-
 
 	return 0;
 }

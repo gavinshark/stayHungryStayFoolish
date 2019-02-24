@@ -196,22 +196,30 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 	rio_writen(fd, buf, strlen(buf));
 	sprintf(buf, "Server: Tiny Web Server\r\n");
 	rio_writen(fd, buf, strlen(buf));
+	
+	//1. create pipe to redirect child stdout
+	SECURITY_ATTRIBUTES saAttr = {0};
+	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+	saAttr.bInheritHandle = TRUE;
+	saAttr.lpSecurityDescriptor = NULL;
 
-	//if(fork() == 0){
-	//	setenv("QUERY_STRING", cgiargs, 1);
-	//	dup2(fd, STDOUT_FILENO);
-	//	execve(filename, emptylist, environ);
-	//}
-	STARTUPINFO si;  
-	PROCESS_INFORMATION pi;  
+	HANDLE childOut_Read, ChildOut_Write;
+	CreatePipe(&childOut_Read, &ChildOut_Write, &saAttr, 0);
+	SetHandleInformation(childOut_Read, HANDLE_FLAG_INHERIT, 0);
 
-	ZeroMemory(&si, sizeof(si));  
-	ZeroMemory(&pi, sizeof(pi));  
-
+	STARTUPINFO si;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(STARTUPINFO);
+	si.hStdError = ChildOut_Write;
+	si.hStdOutput = ChildOut_Write;
+	si.dwFlags |= STARTF_USESTDHANDLES;
+	//2. use environment variable as input parameters to child process
 	char szEnv[MAXBUF];
 	sprintf(szEnv,"QUERY_STRING=%s", cgiargs);
 
-	CreateProcess(L"cgi-bin.exe",
+	PROCESS_INFORMATION pi;    
+	ZeroMemory(&pi, sizeof(pi));
+	BOOL bRet = CreateProcess(L"cgi-bin.exe",
 		L"",
 		NULL,
 		NULL,
@@ -222,6 +230,24 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 		&si,
 		&pi
 		);
+	if (!bRet)
+	{
+		wprintf(L"Get Last Error is %d,", GetLastError());
+	}
+	//3.send the child response to web
+	CloseHandle(ChildOut_Write);
+	while (TRUE)
+	{
+		char szBuffer[MAXBUF] = {'\0'};
+		DWORD BytesRead = 0;
+		int flag = ReadFile(childOut_Read, szBuffer, MAXBUF, &BytesRead, NULL);
+		if (!flag || (0 == BytesRead))
+		{
+			break;
+		}
+		rio_writen(fd, szBuffer, BytesRead);
+	}
+	//4.close handle
 	WaitForSingleObject(pi.hProcess, INFINITE);
 	CloseHandle ( pi.hProcess );
 	CloseHandle ( pi.hThread );

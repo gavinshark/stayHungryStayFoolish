@@ -158,9 +158,9 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
 			}
 		} else if (rc == 0) {
 			if (n == 1)
-				return 0; //第一次读取就到了EOF
+				return 0; //reach EOF when first time reading
 			else
-				break;    //读了一些数据后遇到EOF
+				break;    //reach EOF after reading some characters
 		} else
 			return -1;    /* Error */
 	}

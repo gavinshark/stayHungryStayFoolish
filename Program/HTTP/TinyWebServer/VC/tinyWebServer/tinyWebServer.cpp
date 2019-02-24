@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 		getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE, 0);
 		printf("Accepted connection from (%s, %s)\n", hostname, port);
 		doit(connfd);
-		WSACleanup();
+		closesocket(connfd);
 	}
 	WSACleanup();
 }

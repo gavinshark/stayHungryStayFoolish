@@ -10,7 +10,7 @@ int open_listenfd(char *port){
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
 		printf("WSAStartup failed: %d\n", iResult);
-		return 1;
+		return -1;
 	}
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_socktype = SOCK_STREAM;
@@ -20,15 +20,23 @@ int open_listenfd(char *port){
 	if ( dwRetval != 0 ) {
 		printf("getaddrinfo failed with error: %d\n", dwRetval);
 		WSACleanup();
-		return 1;
+		return -1;
 	}
-
+	
 	for(p=listp; p; p=p->ai_next){
+		if (p->ai_family != AF_INET) // add this line to accept IPV4 only
+		{
+		    continue;
+		}
 		if ((listenfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0) continue;
 
 		setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(int));
 
-		if(bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) break;
+		if(bind(listenfd, p->ai_addr, p->ai_addrlen) == 0) 
+		{
+			printf("Server Configuration:\nai_family=%d, ai_addr=%d, ai_protocol=%d\n\n", p->ai_family, p->ai_addr, p->ai_protocol);
+			break;
+		}
 
 		WSACleanup();
 	}

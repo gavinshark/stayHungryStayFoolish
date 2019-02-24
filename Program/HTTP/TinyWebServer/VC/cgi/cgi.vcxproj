@@ -37,7 +37,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>cgi-bin</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -47,6 +48,10 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /y $(SolutionDir)$(Configuration)\$(ProjectName).exe $(SolutionDir)$(Configuration)\cgi-bin.exe
+copy /y $(SolutionDir)$(Configuration)\$(ProjectName).exe $(SolutionDir)$(Configuration)\cgi-bin</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

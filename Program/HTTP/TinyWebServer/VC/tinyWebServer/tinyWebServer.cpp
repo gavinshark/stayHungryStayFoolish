@@ -13,9 +13,10 @@ void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longms
 int main(int argc, char **argv)
 {
 	int listenfd, connfd;
-	char hostname[MAXLINE], port[MAXLINE];
+	char hostname[MAXLINE]={'\0'}, port[MAXLINE]={'\0'};
 	socklen_t clientlen;
 	struct sockaddr_storage clientaddr;
+	memset(&clientaddr, 0, sizeof(sockaddr_storage));
 
 	/*check command-line args*/
 	if (argc != 2)
@@ -25,6 +26,8 @@ int main(int argc, char **argv)
 	}
 
 	listenfd = open_listenfd(argv[1]);
+	fprintf(stdout, "start to listen at port: %s\n", argv[1]);
+
 	while (1)
 	{
 		clientlen = sizeof(clientaddr);
@@ -165,7 +168,7 @@ void serve_static(int fd, char * filename, int filesize){
 	printf("%s", buf);
 
 	/*Send response body to client*/
-	srcfd = fopen(filename, "a+");
+	srcfd = fopen(filename, "r");
 	fread(srcp, 1, sizeof(srcp)-1, srcfd);
 	fclose(srcfd);
 	rio_writen(fd, srcp, filesize);
@@ -199,7 +202,6 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 	//	dup2(fd, STDOUT_FILENO);
 	//	execve(filename, emptylist, environ);
 	//}
-	LPSECURITY_ATTRIBUTES lpProcessAttributes;
 	STARTUPINFO si;  
 	PROCESS_INFORMATION pi;  
 
@@ -211,7 +213,7 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 
 	CreateProcess(L"cgi-bin.exe",
 		L"",
-		lpProcessAttributes,
+		NULL,
 		NULL,
 		TRUE,
 		0,

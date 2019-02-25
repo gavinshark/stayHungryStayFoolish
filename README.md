@@ -8,9 +8,12 @@
 	
 2. Program
 - HTTP
-	- TinyWebServer(C)
+	- TinyWebServer(GCC & VC)
+	- DNS(VC)
 - Threads
 	- singleton(C++)
+
+	
 	
 3. Topic
 - ActiveDirectory

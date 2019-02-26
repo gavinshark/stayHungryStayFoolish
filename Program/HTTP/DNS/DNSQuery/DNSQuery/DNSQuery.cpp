@@ -29,7 +29,7 @@ int getDNSVector(const wstring & strHostName, VDNSRESULT & vDNSResult) {
 
     PDNS_RECORD pDnsRecord = NULL;
     DNS_STATUS iDNSTATUS = DnsQuery_W(
-        strHostName.c_str(), DNS_TYPE_ALL, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);
+        strHostName.c_str(), DNS_TYPE_ALL, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);//DNS_TYPE_ALL,DNS_TYPE_ANY,DNS_TYPE_A, DNS_TYPE_AAAA, DNS_TYPE_CNAME
     
     PDNS_RECORD pTempRecord = pDnsRecord;
     TCHAR szTmp[MAX_IP_STRING_LENGTH] = {_T('0')};
@@ -65,6 +65,8 @@ int getDNSVector(const wstring & strHostName, VDNSRESULT & vDNSResult) {
 
         pTempRecord = pTempRecord->pNext;
     }
+
+    DnsRecordListFree(pDnsRecord, DnsFreeRecordList);
 
     return ret;
 }

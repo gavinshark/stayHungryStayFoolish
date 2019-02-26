@@ -30,7 +30,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	printf("Connection: close\r\n");
 	printf("Content-length: %d\r\n", (int)strlen(content));
-	printf("Content-type: text/html\r\n\r\n");
+	printf("Content-type: text/html\n\n");//read file will convert \r\n\r\n to \r\r\n\r\r\n it is very boring!
 	printf("%s", content);
 	fflush(stdout);
 

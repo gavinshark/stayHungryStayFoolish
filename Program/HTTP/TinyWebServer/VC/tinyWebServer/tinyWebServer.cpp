@@ -252,7 +252,7 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 	//3.send the child response to web
 	CloseHandle(childOut_Write);
 	/*Return first part of HTTP response*/
-	sprintf(buf, "HTTP/1.0 200 OK\r\n");
+	sprintf(buf, "HTTP/1.1 200 OK\r\n");
 	rio_writen(fd, buf, strlen(buf));
 	sprintf(buf, "Server: Tiny Web Server\r\n");
 	rio_writen(fd, buf, strlen(buf));
@@ -266,7 +266,7 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 		{
 			break;
 		}
-		rio_writen(fd, szBuffer, BytesRead);
+		rio_writen(fd, szBuffer, strlen(szBuffer));//BytesRead);
 	}
 	//4.close handle
 	WaitForSingleObject(pi.hProcess, INFINITE);

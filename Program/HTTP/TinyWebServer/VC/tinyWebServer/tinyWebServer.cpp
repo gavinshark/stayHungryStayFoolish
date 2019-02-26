@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "csapp.h"
 
+#define CGI_BIN "cgi-bin.exe"
 
 void doit(int fd);
 void read_requesthdrs(rio_t *rp);
@@ -38,6 +39,8 @@ int main(int argc, char **argv)
 		closesocket(connfd);
 	}
 	WSACleanup();
+
+	while(TRUE){}
 }
 
 void doit(int fd)
@@ -191,11 +194,6 @@ void get_filetype(char *filename, char *filetype){
 void serve_dynamic(int fd, char * filename, char * cgiargs){
 	char buf[MAXLINE], *emptylist[] = {NULL};
 
-	/*Return first part of HTTP response*/
-	sprintf(buf, "HTTP/1.0 200 OK\r\n");
-	rio_writen(fd, buf, strlen(buf));
-	sprintf(buf, "Server: Tiny Web Server\r\n");
-	rio_writen(fd, buf, strlen(buf));
 	
 	//1. create pipe to redirect child stdout
 	SECURITY_ATTRIBUTES saAttr = {0};
@@ -203,39 +201,62 @@ void serve_dynamic(int fd, char * filename, char * cgiargs){
 	saAttr.bInheritHandle = TRUE;
 	saAttr.lpSecurityDescriptor = NULL;
 
-	HANDLE childOut_Read, ChildOut_Write;
-	CreatePipe(&childOut_Read, &ChildOut_Write, &saAttr, 0);
-	SetHandleInformation(childOut_Read, HANDLE_FLAG_INHERIT, 0);
+	HANDLE childOut_Read, childOut_Write;
+	BOOL bret = CreatePipe(&childOut_Read, &childOut_Write, &saAttr, 0);
+	if (FALSE == bret)
+	{
+		wprintf(L"create pipe failed and the Error Code is %d", GetLastError());
+	}
+	bret = SetHandleInformation(childOut_Read, HANDLE_FLAG_INHERIT, 0);
+	if (FALSE == bret)
+	{
+		wprintf(L"SetHandleInformation failed and the Error Code is %d", GetLastError());
+	}
 
-	STARTUPINFO si;
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(STARTUPINFO);
-	si.hStdError = ChildOut_Write;
-	si.hStdOutput = ChildOut_Write;
+	STARTUPINFOA si ={sizeof(si)};
+	ZeroMemory(&si, sizeof(STARTUPINFOA));
+	si.cb = sizeof(STARTUPINFOA);
+	si.hStdError = childOut_Write;
+	si.hStdOutput = childOut_Write;
 	si.dwFlags |= STARTF_USESTDHANDLES;
 	//2. use environment variable as input parameters to child process
 	char szEnv[MAXBUF];
 	sprintf(szEnv,"QUERY_STRING=%s", cgiargs);
+	/*
+	Note that an ANSI environment block is terminated by two zero bytes: one for the last string, one more to terminate the block.
+	A Unicode environment block is terminated by four zero bytes: two for the last string, two more to terminate the block.
+	*/
+	size_t sT= strlen(szEnv);
+	szEnv[sT+1] = '\0';
+
 
 	PROCESS_INFORMATION pi;    
 	ZeroMemory(&pi, sizeof(pi));
-	BOOL bRet = CreateProcess(L"cgi-bin.exe",
-		L"",
+	char szCmdLine[MAXLINE] = {'\0'};
+	sprintf(szCmdLine, "%s", CGI_BIN);
+	bret = CreateProcessA(NULL,
+		szCmdLine,
 		NULL,
 		NULL,
 		TRUE,
 		0,
-		szEnv,
+		(void *)szEnv,
 		NULL,
 		&si,
 		&pi
 		);
-	if (!bRet)
+	if (!bret)
 	{
-		wprintf(L"Get Last Error is %d,", GetLastError());
+		wprintf(L"CreateProcess Failed and Get Last Error is %d", GetLastError());
 	}
 	//3.send the child response to web
-	CloseHandle(ChildOut_Write);
+	CloseHandle(childOut_Write);
+	/*Return first part of HTTP response*/
+	sprintf(buf, "HTTP/1.0 200 OK\r\n");
+	rio_writen(fd, buf, strlen(buf));
+	sprintf(buf, "Server: Tiny Web Server\r\n");
+	rio_writen(fd, buf, strlen(buf));
+
 	while (TRUE)
 	{
 		char szBuffer[MAXBUF] = {'\0'};

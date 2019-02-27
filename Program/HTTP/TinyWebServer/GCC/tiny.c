@@ -12,9 +12,10 @@ void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longms
 int main(int argc, char **argv)
 {
 	int listenfd, connfd;
-	char hostname[MAXLINE], port[MAXLINE];
-	socklen_t clientlen;
+	char hostname[MAXLINE]={'\0'}, port[MAXLINE]={'\0'};
+	socklen_t clientlen=0;
 	struct sockaddr_storage clientaddr;
+	memset(&clientaddr, 0, sizeof(clientaddr));
 
 	/*check command-line args*/
 	if (argc != 2)
@@ -24,6 +25,8 @@ int main(int argc, char **argv)
 	}
 
 	listenfd = open_listenfd(argv[1]);
+	fprintf(stdout, "start to listen at port: %s\n", argv[1]);
+
 	while (1)
 	{
 		clientlen = sizeof(clientaddr);
@@ -37,10 +40,10 @@ int main(int argc, char **argv)
 
 void doit(int fd)
 {
-	int is_static;
+	int is_static=0;
 	struct stat sbuf;
-	char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
-	char filename[MAXLINE], cgiargs[MAXLINE];
+	char buf[MAXLINE]={'\0'}, method[MAXLINE]={'\0'}, uri[MAXLINE]={'\0'}, version[MAXLINE]={'\0'};
+	char filename[MAXLINE]={'\0'}, cgiargs[MAXLINE]={'\0'};
 	rio_t rio;
 
 	rio_readinitb(&rio, fd);
@@ -86,7 +89,7 @@ void doit(int fd)
 }
 
 void clienterror(int fd, char * cause, char * errnum, char * shortmsg, char * longmsg){
-	char buf[MAXLINE], body[MAXLINE];
+	char buf[MAXLINE]={'\0'}, body[MAXLINE]={'\0'};
 
 	/*Build the HTTP response body*/
 	sprintf(body, "<html><title>Tiny Error</title>");
@@ -98,6 +101,9 @@ void clienterror(int fd, char * cause, char * errnum, char * shortmsg, char * lo
 	/*Print the HTTP response*/
 	sprintf(buf, "HTTP/1.0 %s %s\r\n", errnum, shortmsg);
 	rio_writen(fd, buf, strlen(buf));
+	printf("Response status header of Error Request:\n");
+	printf(buf);
+	printf("\n\n");
 	sprintf(buf, "Content-type: text/html\r\n");
 	rio_writen(fd, buf, strlen(buf));
 	sprintf(buf, "Content-length: %d\r\n\r\n", (int)strlen(body));
@@ -106,7 +112,7 @@ void clienterror(int fd, char * cause, char * errnum, char * shortmsg, char * lo
 }
 
 void read_requesthdrs(rio_t *rp){
-	char buf[MAXLINE];
+	char buf[MAXLINE]={'\0'};
 
 	rio_readlineb(rp, buf, MAXLINE);
 	printf("%s", buf);
@@ -118,7 +124,7 @@ void read_requesthdrs(rio_t *rp){
 }
 
 int parse_uri(char * uri, char * filename, char * cgiargs){
-	char *ptr;
+	char *ptr=NULL;
 
 	if(!strstr(uri, "cgi-bin")){
 		strcpy(cgiargs, "");
@@ -149,7 +155,7 @@ int parse_uri(char * uri, char * filename, char * cgiargs){
 
 void serve_static(int fd, char * filename, int filesize){
 	int srcfd;
-	char *srcp, filetype[MAXLINE], buf[MAXBUF];
+	char *srcp, filetype[MAXLINE]={'\0'}, buf[MAXBUF]={'\0'};
 
 	/*Send response headers to client*/
 	get_filetype(filename, filetype);
@@ -185,7 +191,7 @@ void get_filetype(char *filename, char *filetype){
 }
 
 void serve_dynamic(int fd, char * filename, char * cgiargs){
-	char buf[MAXLINE], *emptylist[] = {NULL};
+	char buf[MAXLINE]={'\0'}, *emptylist[] = {NULL};
 
 	/*Return first part of HTTP response*/
 	sprintf(buf, "HTTP/1.0 200 OK\r\n");

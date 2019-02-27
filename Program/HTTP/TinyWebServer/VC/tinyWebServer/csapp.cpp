@@ -148,6 +148,10 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
 {
 	int n, rc;
 	char c, *bufp = (char *)usrbuf;
+	if (bufp)
+	{
+		*bufp = '\0';
+	}
 
 	for (n = 1; n < maxlen; n++) { 
 		if ((rc = rio_read(rp, &c, 1)) == 1) {

@@ -9,10 +9,10 @@
 2. Program
 - HTTP
 	- TinyWebServer(GCC & VC)
-	- DNS(VC)
 - Threads
 	- singleton(C++)
-
+- DNS
+	- DNSQuery(VC)
 	
 	
 3. Topic

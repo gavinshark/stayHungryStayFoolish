@@ -36,7 +36,7 @@ int getDNSVector(const wstring & strHostName, VDNSRESULT & vDNSResult) {
 
     PDNS_RECORD pDnsRecord = NULL;
     DNS_STATUS iDNSTATUS = DnsQuery_W(
-        strHostName.c_str(), DNS_TYPE_ALL, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);//DNS_TYPE_ALL,DNS_TYPE_ANY,DNS_TYPE_A, DNS_TYPE_AAAA, DNS_TYPE_CNAME
+        strHostName.c_str(), DNS_TYPE_ANY, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);//DNS_TYPE_ALL,DNS_TYPE_ANY,DNS_TYPE_A, DNS_TYPE_AAAA, DNS_TYPE_CNAME
     ret = iDNSTATUS;
     if (DNS_RCODE_NOERROR == iDNSTATUS)
     {

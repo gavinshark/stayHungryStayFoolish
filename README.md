@@ -11,8 +11,12 @@
 	- TinyWebServer(GCC & VC)
 - Threads
 	- singleton(C++)
+    - timeoutFunction(C++)
+    - timerloop(Python)
 - DNS
 	- DNSQuery(VC)
+- MultiLanguageCall
+	- PythonCallCPlusPlus(VC & Python)
 	
 	
 3. Topic

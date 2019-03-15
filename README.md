@@ -13,6 +13,7 @@
 	- singleton(C++)
     - timeoutFunction(C++)
     - timerloop(Python)
+	- race(Python)
 - DNS
 	- DNSQuery(VC)
 - MultiLanguageCall

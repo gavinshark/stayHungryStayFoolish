@@ -1,0 +1,98 @@
+#include "stdafx.h"
+#include "asyncDNSHandler.h"
+
+#pragma comment(lib, "Dnsapi.lib")
+#pragma comment(lib, "Ws2_32.lib")
+
+
+#define MAX_IP_STRING_LENGTH (128)
+#define MAX_TIMEOUT_MILLI_SECONDS (1000)
+
+typedef struct _DNS_RESULT {
+    wstring strType;
+    wstring strDNSValue;
+}DNS_RESULT;
+
+typedef vector<DNS_RESULT> VDNSRESULT;
+
+int getDNSVector(const wstring & strHostName, VDNSRESULT & vDNSResult) {
+    int ret = 0;
+    vDNSResult.clear();
+
+    wcout << L"start to query DNS for " << strHostName << endl;
+
+    PDNS_RECORD pDnsRecord = NULL;
+    DNS_STATUS iDNSTATUS = DnsQuery_W(
+        strHostName.c_str(), DNS_TYPE_ANY, DNS_QUERY_STANDARD, NULL, &pDnsRecord, NULL);//DNS_TYPE_ALL,DNS_TYPE_ANY,DNS_TYPE_A, DNS_TYPE_AAAA, DNS_TYPE_CNAME
+    ret = iDNSTATUS;
+    if (DNS_RCODE_NOERROR == iDNSTATUS)
+    {
+        PDNS_RECORD pTempRecord = pDnsRecord;
+        TCHAR szTmp[MAX_IP_STRING_LENGTH] = { _T('0') };
+        while (pTempRecord != NULL)
+        {
+            DNS_RESULT dnsResult;
+            switch (pTempRecord->wType)
+            {
+            case DNS_TYPE_A:
+                dnsResult.strType = L"IPV4";
+                InetNtopW(AF_INET, &pTempRecord->Data.A.IpAddress, szTmp, sizeof(szTmp));
+                dnsResult.strDNSValue = szTmp;
+                break;
+            case DNS_TYPE_AAAA:
+                dnsResult.strType = L"IPV6";
+                InetNtopW(AF_INET6, &pTempRecord->Data.AAAA.Ip6Address, szTmp, sizeof(szTmp));
+                //wsprintf(szTmp, L"0x%032x", pTempRecord->Data.AAAA.Ip6Address);
+                dnsResult.strDNSValue = szTmp;
+                break;
+            case DNS_TYPE_CNAME:
+                dnsResult.strType = L"CNAME";
+                wsprintf(szTmp, L"%s", pTempRecord->Data.CNAME.pNameHost);
+                dnsResult.strDNSValue = szTmp;
+                break;
+            default:
+                wsprintf(szTmp, L"%d", pTempRecord->wType);
+                dnsResult.strType = szTmp;
+                dnsResult.strDNSValue = L"";
+                break;
+            }
+
+            vDNSResult.push_back(dnsResult);
+
+            pTempRecord = pTempRecord->pNext;
+        }
+    }
+    else
+    {
+        wprintf(L"DNS Query error, error code is %d\n", iDNSTATUS);
+    }
+
+    DnsRecordListFree(pDnsRecord, DnsFreeRecordList);
+
+    wcout << L"End with querying DNS for " << strHostName << " with " << vDNSResult.size() << " records" << endl;
+
+    return ret;
+}
+
+
+void displayDNSVector(const VDNSRESULT & vDNSResult) {
+    wcout << L"the DNS result is" << endl;
+    for each (DNS_RESULT dnsResult in vDNSResult)
+    {
+        wcout << L"wType: " << dnsResult.strType << L" and Resolved Address:" << dnsResult.strDNSValue << endl;
+    }
+}
+
+
+int handleDNSQuery(const wstring strHostName) {
+    VDNSRESULT vDNSResult;
+    clock_t beignTime = clock();
+    int iRet = getDNSVector(strHostName, vDNSResult);
+    clock_t endTime = clock();
+    wcout << L"Time used(ms): " << (endTime - beignTime) << endl;
+    if (0 == iRet)
+    {
+        displayDNSVector(vDNSResult);
+    }
+    return iRet;
+}

@@ -19,11 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F4F0A8AC-1BFD-4AB5-8A9B-3B99DD206D5D}</ProjectGuid>
+    <ProjectGuid>{F9C67BCE-67D0-4720-ADD9-A0C42333DE85}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>timeoutfunction</RootNamespace>
+    <RootNamespace>TimeoutFunctionThread</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>timeoutfunctionFuture</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -156,7 +155,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="timeoutfunction.cpp" />
+    <ClCompile Include="TimeoutFunctionThread.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

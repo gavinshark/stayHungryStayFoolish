@@ -70,11 +70,10 @@ UINT _stdcall busyworkFunc(LPVOID pParam) {
 
 int timoutReturnFunc(int timoutInterval, string strParam) {
     int iRet = ERROR_SUCCESS;
-    unsigned int uiThreadId = 0;
     HANDLE hEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
     std::shared_ptr<CTimeOutParam> pShare(new CTimeOutParam(hEvent, strParam));
     std::cout << "timoutReturnFunc: pShare use count is:" << pShare.use_count()<< endl;
-    HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, busyworkFunc, (void *)&pShare, 0, &uiThreadId);
+    HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, busyworkFunc, (void *)&pShare, 0, NULL);
     DWORD dwResult = ::WaitForSingleObject(hEvent, WAIT_FOR_TIME_OUT);
     CloseHandle(hThread);
     if (WAIT_OBJECT_0 == dwResult)
@@ -94,8 +93,7 @@ int timoutReturnFunc(int timoutInterval, string strParam) {
 
 int main()
 {
-    bool timedout = false;
-    int retValue = 10;
+    int retValue = ERROR_ERROR;
     int timoutInterval = WAIT_FOR_TIME_OUT;
     string strParam = "Hello main";
     while (true) {

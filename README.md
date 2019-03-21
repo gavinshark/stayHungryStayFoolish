@@ -18,6 +18,8 @@
 	- DNSQuery(VC)
 - MultiLanguageCall
 	- PythonCallCPlusPlus(VC & Python)
+- Exception
+	- Python(Python)
 	
 	
 3. Topic

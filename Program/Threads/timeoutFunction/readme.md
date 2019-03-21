@@ -1,0 +1,1 @@
+It is recommended to use C++ 11 function (future+package_task+thread) in timeoutFunctionTemplate project

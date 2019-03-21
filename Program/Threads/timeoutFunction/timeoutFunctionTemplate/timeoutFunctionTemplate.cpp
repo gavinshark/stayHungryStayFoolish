@@ -2,7 +2,19 @@
 #include <iostream>
 #include <future>
 #include <chrono>
+#include <string>
 #include <windows.h>
+using namespace std;
+
+std::string current_time() {
+    time_t now = time(NULL);
+    struct tm tstruct;
+    char buf[40];
+    localtime_s(&tstruct, &now);
+    //format: HH:mm:ss
+    strftime(buf, sizeof(buf), "%X", &tstruct);
+    return buf;
+}
 
 template <typename F, typename... Args>
 auto really_async2(F&& f, Args&&... args)
@@ -17,41 +29,50 @@ auto really_async2(F&& f, Args&&... args)
     return _fut;
 }
 
-int AsyncFunction()
+int AsyncFunction(string strInput)
 {
-    fprintf(stderr, "AsyncFunction start\n");
-    Sleep(3 * 1000);
-    fprintf(stderr, "AsyncFunction end\n");
+    fprintf(stdout, "AsyncFunction start and input string is %s at %s\n", strInput.c_str(), current_time().c_str());
+    Sleep(1*1000);
+    fprintf(stdout, "AsyncFunction end at %s\n", current_time().c_str());
     return 1;
 }
 
-void AsyncTest()
+void AsyncTest(string strInput)
 {
-    fprintf(stderr, "AsyncTest Begin\n");
+    fprintf(stdout, "AsyncTest Begin at %s\n", current_time().c_str());
     std::future_status status;
-    std::future<int> future_test = really_async2(AsyncFunction);
-    status = future_test.wait_for(std::chrono::milliseconds(100));
+    //std::future<int> future_test = really_async2(AsyncFunction);      // method 1 , but std::result_of<F(Args...)>::type is legacy in C++ 17
+    std::packaged_task<int(string)> tsk(AsyncFunction);                 // method 2 
+    std::future<int> future_test = tsk.get_future();
+    std::thread thd(std::move(tsk), strInput);
+    thd.detach();
+    status = future_test.wait_for(std::chrono::milliseconds(2*1000));
     if (std::future_status::timeout == status)
     {
-        fprintf(stderr, "AsyncTest timeout\n");
+        fprintf(stdout, "AsyncTest timeout at %s\n", current_time().c_str());
     }
     else if (std::future_status::ready == status)
     {
-        fprintf(stderr, "AsyncTest ready\n");
+        fprintf(stdout, "AsyncTest ready and result is %d at %s\n", future_test.get(), current_time().c_str());
     }
     else
     {
-        fprintf(stderr, "AsyncTest Other Error: %d\n", status);
+        fprintf(stderr, "AsyncTest Other Error: %d at %s\n", status, current_time().c_str());
     }
-    fprintf(stderr, "AsyncTest End\n");
+    fprintf(stdout, "AsyncTest End at %s\n", current_time().c_str());
 }
 int main()
 {
     int abc = 1;
+    string str = "Hello";
     while (true) {
-        fprintf(stderr, "Main start\n");
-        AsyncTest();
-        fprintf(stderr, "Main end\n");
+        fprintf(stdout, "Main start at %s\n", current_time().c_str());
+        AsyncTest(str);
+        fprintf(stdout, "Main end at %s\n", current_time().c_str());
+        break;
+    }
+    while (1) {
+
     }
     return 0;
 }

@@ -32,7 +32,7 @@ auto really_async2(F&& f, Args&&... args)
 int AsyncFunction(string strInput)
 {
     fprintf(stdout, "AsyncFunction start and input string is %s at %s\n", strInput.c_str(), current_time().c_str());
-    Sleep(1*1000);
+    Sleep(3*1000);
     fprintf(stdout, "AsyncFunction end at %s\n", current_time().c_str());
     return 1;
 }
@@ -66,10 +66,13 @@ int main()
     int abc = 1;
     string str = "Hello";
     while (true) {
+        unsigned long ulBegin = ::GetTickCount();
         fprintf(stdout, "Main start at %s\n", current_time().c_str());
         AsyncTest(str);
+        unsigned long ulEnd = ::GetTickCount();
         fprintf(stdout, "Main end at %s\n", current_time().c_str());
-        break;
+        fprintf(stdout, "Time cost %d\n", ulEnd - ulBegin);
+        //break;
     }
     while (1) {
 

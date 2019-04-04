@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.IO;
 using System.Configuration;
 
 namespace FileWatcher {
-    //To watch file status changing of adding/ modification/ deleting based on file info
+    //To watch file status changing of adding/ modification/ deleting based on looping querying file's info
     public class FileLoopWatcher
     {
         //event category
@@ -29,11 +26,11 @@ namespace FileWatcher {
         //monitor thread parameter
         private Thread m_thread;
         private int m_iFileMonitorIntervalinSecs;
-        private static readonly string KEY_MONITOR_INTERVAL_IN_SECS = "fileModifiedMonitorIntervalinSecs";
+        private static readonly string KEY_MONITOR_INTERVAL_IN_SECS = "fileMonitorIntervalinSecs";
         private static readonly int DEFAULT_MONITOR_INTERVAL_IN_SECS = 10;
-        private volatile int m_monitorEnable;
-        private volatile int m_monitorThreadKeepAlive;
-        private readonly object m_SyncObject;
+        private volatile int m_enableMonitor;
+        private volatile int m_keepMonitorThreadAlive;
+        private object m_syncObject;
 
         public FileLoopWatcher(string strFilePath, Action<int> action) {
             m_strFilePath = strFilePath;
@@ -64,19 +61,19 @@ namespace FileWatcher {
                 m_iFileMonitorIntervalinSecs = DEFAULT_MONITOR_INTERVAL_IN_SECS;
             }
             
-            m_monitorEnable = 0;
-            m_monitorThreadKeepAlive = 1;
-            m_SyncObject = new object();
+            m_enableMonitor = 0;
+            m_keepMonitorThreadAlive = 1;
+            m_syncObject = new object();
             m_thread = null;
         }
 
         private void monitorFunc()
         {
             while (true) {
-                if (0 == m_monitorThreadKeepAlive) {
+                if (0 == m_keepMonitorThreadAlive) {
                     break;
                 }
-                if (0 != m_monitorEnable && 0 != m_strFilePath.Length) {
+                if (0 != m_enableMonitor && 0 != m_strFilePath.Length) {
                     try
                     {
                         int iChangeEventSet = FILE_LOOP_WATCHER_EVENT_NOEVENT;
@@ -116,8 +113,7 @@ namespace FileWatcher {
                         Console.WriteLine("Exception : {0} happended during monitoring file:{1}", e.ToString(), m_strFilePath);
                     }
                 }
-                if (0 == m_monitorThreadKeepAlive)
-                {
+                if (0 == m_keepMonitorThreadAlive) {
                     break;
                 }
                 Thread.Sleep(m_iFileMonitorIntervalinSecs * 1000);
@@ -126,13 +122,13 @@ namespace FileWatcher {
 
         public bool start()
         {
-            //1. check object status
+            //1. check status
             if (0 == m_strFilePath.Length || null == m_eventAction || 0 == m_iFileMonitorIntervalinSecs) {
                 return false;
             }
             //2. create a singleton thread
-            if (null == m_thread && null != m_SyncObject) {
-                lock (m_SyncObject) {
+            if (null == m_thread && null != m_syncObject) {
+                lock (m_syncObject) {
                     if (null == m_thread)
                     {
                         m_thread = new Thread(monitorFunc);
@@ -145,7 +141,7 @@ namespace FileWatcher {
                 }
             }
             //3. enable the monitor logic
-            Interlocked.Exchange(ref m_monitorEnable, 1);
+            Interlocked.Exchange(ref m_enableMonitor, 1);
             return true;
         }
 
@@ -153,13 +149,13 @@ namespace FileWatcher {
             if (null == m_thread) {
                 return false;
             }
-            Interlocked.Exchange(ref m_monitorEnable, 0);
+            Interlocked.Exchange(ref m_enableMonitor, 0);
             return true;
         }
 
         ~FileLoopWatcher() {
-            //recycle the monitor thread
-            Interlocked.Exchange(ref m_monitorThreadKeepAlive, 0);
+            //join the monitor thread
+            Interlocked.Exchange(ref m_keepMonitorThreadAlive, 0);
             if (null != m_thread && m_thread.IsAlive && 0 != m_iFileMonitorIntervalinSecs) {
                 m_thread.Join(m_iFileMonitorIntervalinSecs * 1000 * 3);
             }

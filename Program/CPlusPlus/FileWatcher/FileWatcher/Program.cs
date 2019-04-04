@@ -18,7 +18,8 @@ namespace FileWatcher
         static void Main(string[] args)
         {
             const string filePath = "D:\\tmp\\1.txt";
-            
+            //const string filePath = "57756";
+
             FileLoopWatcher flw = new FileLoopWatcher(filePath, callbackFunc);
 
             if (flw.start())
@@ -30,22 +31,22 @@ namespace FileWatcher
                 Console.WriteLine("Error, flw is not triggered!");
             }
 
-//             Thread.Sleep(timeInterval);
+            Thread.Sleep(timeInterval);
+            if (flw.start())
+            {
+                DateTime now = DateTime.Now;
+                Console.WriteLine("{0} start is triggered!", now);
+            }
+            else
+            {
+                Console.WriteLine("Error, flw is not triggered!");
+            }
+            Thread.Sleep(timeInterval);
+
 //             if (flw.stop())
 //             {
 //                 DateTime now = DateTime.Now;
 //                 Console.WriteLine("{0} stop is triggered!", now);
-//             }
-//             else
-//             {
-//                 Console.WriteLine("Error, flw is not triggered!");
-//             }
-//             Thread.Sleep(timeInterval);
-// 
-//             if (flw.start())
-//             {
-//                 DateTime now = DateTime.Now;
-//                 Console.WriteLine("{0} start is triggered!", now);
 //             }
 //             else
 //             {

@@ -8,10 +8,11 @@ namespace FileWatcher {
     public class FileLoopWatcher
     {
         //event category
-        public static readonly int FILE_LOOP_WATCHER_EVENT_NOEVENT= 0;
-        public static readonly int FILE_LOOP_WATCHER_EVENT_CREATE = 1;
-        public static readonly int FILE_LOOP_WATCHER_EVENT_MODIFY = 2;
-        public static readonly int FILE_LOOP_WATCHER_EVENT_DELETE = 4;
+        public const int FILE_LOOP_WATCHER_EVENT_NOEVENT= 0;
+        public const int FILE_LOOP_WATCHER_EVENT_CREATE = 1;
+        public const int FILE_LOOP_WATCHER_EVENT_MODIFY = 2;
+        public const int FILE_LOOP_WATCHER_EVENT_DELETE = 4;
+        public const int FILE_LOOP_WATCHER_EVENT_ALL = 0xff;
         //file info
         private string m_strFilePath;
         private DateTime m_createdTime;
@@ -21,19 +22,20 @@ namespace FileWatcher {
         private static readonly DateTime DEFAULT_DATETIME = new DateTime(1900, 1, 1);
 
         //call back function
-        private Action<int> m_eventAction;
+        private Action m_eventAction;
+        private int m_iInterestedEvents;
         
         //monitor thread parameter
         private Thread m_thread;
         private int m_iFileMonitorIntervalinSecs;
-        private static readonly string KEY_MONITOR_INTERVAL_IN_SECS = "fileMonitorIntervalinSecs";
-        private static readonly int DEFAULT_MONITOR_INTERVAL_IN_SECS = 10;
-        private volatile int m_enableMonitor;
-        private volatile int m_keepMonitorThreadAlive;
+        private const string KEY_MONITOR_INTERVAL_IN_SECS = "fileMonitorIntervalinSecs";
+        private const int DEFAULT_MONITOR_INTERVAL_IN_SECS = 10;
+        private readonly ManualResetEvent m_exitEvent = new ManualResetEvent(false);
         private object m_syncObject;
 
-        public FileLoopWatcher(string strFilePath, Action<int> action) {
+        public FileLoopWatcher(string strFilePath, int iInterestedEvents, Action action) {
             m_strFilePath = strFilePath;
+            m_iInterestedEvents = iInterestedEvents;
             m_createdTime = DEFAULT_DATETIME;
             m_lastWriteTime = DEFAULT_DATETIME;
             m_bFileExist = false;
@@ -61,32 +63,29 @@ namespace FileWatcher {
                 m_iFileMonitorIntervalinSecs = DEFAULT_MONITOR_INTERVAL_IN_SECS;
             }
             
-            m_enableMonitor = 0;
-            m_keepMonitorThreadAlive = 1;
             m_syncObject = new object();
             m_thread = null;
         }
 
         private void monitorFunc()
         {
-            while (true) {
-                if (0 == m_keepMonitorThreadAlive) {
-                    break;
-                }
-                if (0 != m_enableMonitor && 0 != m_strFilePath.Length) {
+            while (m_exitEvent.WaitOne(m_iFileMonitorIntervalinSecs * 1000) == false)
+            {
+                if (0 != m_strFilePath.Length)
+                {
                     try
                     {
-                        int iChangeEventSet = FILE_LOOP_WATCHER_EVENT_NOEVENT;
+                        int iChangeEvents = FILE_LOOP_WATCHER_EVENT_NOEVENT;
                         bool bFileExist = File.Exists(m_strFilePath);
                         //create ?
                         if (bFileExist & !m_bFileExist)
                         {
-                            iChangeEventSet |= FILE_LOOP_WATCHER_EVENT_CREATE;
+                            iChangeEvents |= FILE_LOOP_WATCHER_EVENT_CREATE;
                         }
                         //delete ?
                         if (!bFileExist & m_bFileExist)
                         {
-                            iChangeEventSet |= FILE_LOOP_WATCHER_EVENT_DELETE;
+                            iChangeEvents |= FILE_LOOP_WATCHER_EVENT_DELETE;
                         }
                         m_bFileExist = bFileExist;
                         //modify ?
@@ -98,29 +97,26 @@ namespace FileWatcher {
                             {
                                 m_createdTime = createdTime;
                                 m_lastWriteTime = writeTime;
-                                iChangeEventSet |= FILE_LOOP_WATCHER_EVENT_MODIFY;
+                                iChangeEvents |= FILE_LOOP_WATCHER_EVENT_MODIFY;
                             }
                         }
                         //call back
-                        if (FILE_LOOP_WATCHER_EVENT_NOEVENT != iChangeEventSet)
+                        if (0 != (m_iInterestedEvents & iChangeEvents))
                         {
-                            m_eventAction?.Invoke(iChangeEventSet);
+                            m_eventAction?.Invoke();
                         }
 
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         //print Exception log;
                         Console.WriteLine("Exception : {0} happended during monitoring file:{1}", e.ToString(), m_strFilePath);
                     }
                 }
-                if (0 == m_keepMonitorThreadAlive) {
-                    break;
-                }
-                Thread.Sleep(m_iFileMonitorIntervalinSecs * 1000);
             }
         }
 
-        public bool start()
+        public bool Start()
         {
             //1. check status
             if (0 == m_strFilePath.Length || null == m_eventAction || 0 == m_iFileMonitorIntervalinSecs) {
@@ -131,6 +127,7 @@ namespace FileWatcher {
                 lock (m_syncObject) {
                     if (null == m_thread)
                     {
+                        m_exitEvent.Reset();
                         m_thread = new Thread(monitorFunc);
                         if (null == m_thread)
                         {
@@ -138,27 +135,42 @@ namespace FileWatcher {
                         }
                         m_thread.Start();
                     }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
-            //3. enable the monitor logic
-            Interlocked.Exchange(ref m_enableMonitor, 1);
-            return true;
-        }
-
-        public bool stop() {
-            if (null == m_thread) {
+            else
+            {
                 return false;
             }
-            Interlocked.Exchange(ref m_enableMonitor, 0);
             return true;
         }
 
-        ~FileLoopWatcher() {
-            //join the monitor thread
-            Interlocked.Exchange(ref m_keepMonitorThreadAlive, 0);
-            if (null != m_thread && m_thread.IsAlive && 0 != m_iFileMonitorIntervalinSecs) {
-                m_thread.Join(m_iFileMonitorIntervalinSecs * 1000 * 3);
+        public bool End() {
+            if (null != m_thread && m_thread.IsAlive && null != m_syncObject)
+            {
+                lock (m_syncObject)
+                {
+                    if (null != m_thread && m_thread.IsAlive)
+                    {
+                        m_exitEvent.Set();
+                        m_thread.Join();
+                        m_thread = null;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
             }
-        }
+            else
+            {
+                return false;
+            }
+            return false;
+        }        
     }
 }

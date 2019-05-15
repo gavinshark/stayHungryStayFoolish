@@ -95,3 +95,82 @@ Finds that CS2 is owned by thread4 and CS1 is owned by thread3.
 4. Check Code
 
 You know the owner threads and hanging threads now. Use the call stack to review your code.
+
+
+
+
+### mutex
+
+
+Tool: Windbg
+
+1. Find locked threads
+
+cmd: ~*kv
+
+Find thread3 aa8.3ff8 is waiting for handle 00000000`000001b8.
+
+Find thread4 aa8.3268 is waiting for handle 00000000`000001b0.
+
+```
+   3  Id: aa8.3ff8 Suspend: 1 Teb: 00000087`6dcb3000 Unfrozen
+ # Child-SP          RetAddr           : Args to Child                                                           : Call Site
+00 00000087`6e4ff778 00007ffe`bdcc3eef : 00007ffe`bda344b8 00007ffe`bda344b8 00000087`6e4ff7f0 00000087`6e4ff7d0 : ntdll!NtWaitForSingleObject+0x14
+01 00000087`6e4ff780 00007ff7`0e951047 : 00000000`00000000 00000000`00000000 00000087`00000000 00000000`000001b8 : KERNELBASE!WaitForSingleObjectEx+0x8f
+02 00000087`6e4ff820 00007ffe`bd96cd70 : 00000000`00080001 00000000`00000000 00000000`00000000 00000000`00000000 : mutexLock!thread1+0x47 [mutexlock.cpp @ 22]
+03 00000087`6e4ff850 00007ffe`becb84d4 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : ucrtbase!thread_start<unsigned int (__cdecl*)(void * __ptr64)>+0x40
+04 00000087`6e4ff880 00007ffe`c146e851 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : KERNEL32!BaseThreadInitThunk+0x14
+05 00000087`6e4ff8b0 00000000`00000000 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : ntdll!RtlUserThreadStart+0x21
+
+   4  Id: aa8.3268 Suspend: 1 Teb: 00000087`6dcb5000 Unfrozen
+ # Child-SP          RetAddr           : Args to Child                                                           : Call Site
+00 00000087`6e5ffb48 00007ffe`bdcc3eef : 00007ffe`bda344b8 00007ffe`bda344b8 00000087`6e5ffbc0 00000087`6e5ffba0 : ntdll!NtWaitForSingleObject+0x14
+01 00000087`6e5ffb50 00007ff7`0e9510c7 : 00000000`00000000 00000000`00000000 00000087`00000000 00000000`000001b0 : KERNELBASE!WaitForSingleObjectEx+0x8f
+02 00000087`6e5ffbf0 00007ffe`bd96cd70 : 00000000`00080001 00000000`00000000 00000000`00000000 00000000`00000000 : mutexLock!thread2+0x47 [mutexlock.cpp @ 41]
+03 00000087`6e5ffc20 00007ffe`becb84d4 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : ucrtbase!thread_start<unsigned int (__cdecl*)(void * __ptr64)>+0x40
+04 00000087`6e5ffc50 00007ffe`c146e851 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : KERNEL32!BaseThreadInitThunk+0x14
+05 00000087`6e5ffc80 00000000`00000000 : 00000000`00000000 00000000`00000000 00000000`00000000 00000000`00000000 : ntdll!RtlUserThreadStart+0x21
+
+```
+
+2. Find locked mutex
+
+cmd: !handle 00000000`000001b8/00000000`000001b0 f
+
+Find thread3 aa8.3ff8 is waiting for Mutant-MYMUTEX2 owned by thread4.
+Find thread4 aa8.3268 is waiting for Mutant-MYMUTEX1 owned by thread3.
+
+```
+0:007> !handle 1b0 f
+Handle 1b0
+  Type         	Mutant
+  Attributes   	0
+  GrantedAccess	0x1f0001:
+         Delete,ReadControl,WriteDac,WriteOwner,Synch
+         QueryState
+  HandleCount  	2
+  PointerCount 	65537
+  Name         	\Sessions\1\BaseNamedObjects\MYMUTEX1
+  Object Specific Information
+    Mutex is Owned
+    Mutant Owner aa8.3ff8
+0:007> !handle 1b8 f
+Handle 1b8
+  Type         	Mutant
+  Attributes   	0
+  GrantedAccess	0x1f0001:
+         Delete,ReadControl,WriteDac,WriteOwner,Synch
+         QueryState
+  HandleCount  	2
+  PointerCount 	65537
+  Name         	\Sessions\1\BaseNamedObjects\MYMUTEX2
+  Object Specific Information
+    Mutex is Owned
+    Mutant Owner aa8.3268
+
+
+```
+
+3. Check Code
+
+You know the owner threads and hanging threads now. Use the call stack to review your code.

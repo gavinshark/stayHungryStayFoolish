@@ -14,6 +14,7 @@
     - timeoutFunction(C++)
     - timerloop(Python)
 	- race(Python)
+    - DeadLock(VC++)
 - DNS
 	- DNSQuery(VC)
 - MultiLanguageCall

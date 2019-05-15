@@ -23,7 +23,8 @@
 - CPlusPlus
 	- Cpp11(C++)
     - SysinternalsSuite(C++)
-    - FileWatcher(CSharp)    
+    - FileWatcher(CSharp)   
+    - MapFile(VC++)    
 - SysinternalsSuite
     - HeapCroputionTest(C++)
 	

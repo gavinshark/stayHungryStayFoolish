@@ -1,6 +1,8 @@
 conclusion:
 1. default parameter only affect caller function when compling(replace with default value), not name mangling
 2. only one same name extern C function can be defined in one dll.
+3. the export sequence is as alphabetical order
+4. import is related with name mangling, not with sequence
 
 void func(int a, int b) is called by console
 

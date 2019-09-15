@@ -5,7 +5,7 @@
 #include "VCLib.h"
 
 
-void func(int a, int b, int c){
+void afunc3(int a, int b, int c){
 	printf("a,b,c,This is VC int a=%d, int b=%d, int c=%d\n", a, b, c);
 }
 

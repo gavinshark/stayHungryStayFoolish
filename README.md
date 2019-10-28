@@ -26,7 +26,8 @@
     - SysinternalsSuite(C++)
     - FileWatcher(CSharp)   
     - MapFile(VC++)    
-    - DllABI(VC++)    
+    - DllABI(VC++)
+    - FileWriteAndRead(VC++)    
 - SysinternalsSuite
     - HeapCroputionTest(C++)
 - NameMangling

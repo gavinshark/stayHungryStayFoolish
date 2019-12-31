@@ -27,7 +27,9 @@
     - FileWatcher(CSharp)   
     - MapFile(VC++)    
     - DllABI(VC++)
-    - FileWriteAndRead(VC++)    
+    - FileWriteAndRead(VC++) 
+- Java
+	- Spring test(Java)
 - SysinternalsSuite
     - HeapCroputionTest(C++)
 - NameMangling

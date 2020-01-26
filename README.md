@@ -30,6 +30,8 @@
     - FileWriteAndRead(VC++) 
 - Java
 	- Spring test(Java)
+	- JavaCommonDemo(Java)
+	- DubboDemo(Java)
 - SysinternalsSuite
     - HeapCroputionTest(C++)
 - NameMangling

@@ -1,0 +1,1 @@
+This is a mybatis demo test project.

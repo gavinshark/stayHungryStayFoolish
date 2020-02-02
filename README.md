@@ -32,6 +32,7 @@
 	- Spring test(Java)
 	- JavaCommonDemo(Java)
 	- DubboDemo(Java)
+	- MybatisDemo(Java)
 - SysinternalsSuite
     - HeapCroputionTest(C++)
 - NameMangling

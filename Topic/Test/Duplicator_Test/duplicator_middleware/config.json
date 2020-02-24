@@ -1,0 +1,7 @@
+{
+    "log": {
+      "ops_file": "/var/log/match_middleware.log"      
+    },
+    "logMatchSuccessPeriod": 10000,
+    "logBatchMathSuccessPeriod": 10000
+}

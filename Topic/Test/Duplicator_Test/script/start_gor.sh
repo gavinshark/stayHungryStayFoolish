@@ -1,0 +1,1 @@
+nohup /opt/MyCompany/duplicate_test/gor --output-http-track-response --input-raw-track-response --input-raw :8081 --middleware "node /opt/MyCompany/duplicate_test/duplicator_middleware/duplicator_middleware.js" --output-http 127.0.0.1:6666 >> log/gor.log 2>&1 &

@@ -1,0 +1,1 @@
+nohup java -Dlog4jConfigPath=/opt/MyCompany/duplicate_test/APP/conf/log4j.properties -Xms1024m -Xmx7048m -jar /opt/MyCompany/duplicate_test/APP/APP.jar --spring.config.location=/opt/MyCompany/duplicate_test/APP/conf/application.properties --server.port=6666 >> log/APP.log 2>&1 &

@@ -1,0 +1,17 @@
+{
+    "name": "duplicator_middleware",
+    "version": "1.0.0",
+    "main": "duplicator_middleware.js",
+    "dependencies": {
+        "winston": "2.4.0",
+        "goreplay_middleware": "1.0.0"
+    },
+    "scripts": {
+    "test": "node -e \"var dm = require('./duplicator_middleware.js'); dm.unitest(); process.exit()\""
+    },
+    "engines": {
+        "node": "10.13.0"
+    },
+    "author": "GavinShark",
+    "license": "UNLICENSED"
+}

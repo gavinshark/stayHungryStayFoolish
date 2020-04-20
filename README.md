@@ -5,7 +5,10 @@
 		- CarSellPredict(Python)
 	- study
 		- MachineLearning-Homework-of-StanfordUniversity(matlab & Python)
-	
+- Random
+    - StatelessDistribution
+        - StateLessDistributionByMD5(CSharp)
+        
 2. Program
 - HTTP
 	- TinyWebServer(GCC & VC)

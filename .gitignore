@@ -6,6 +6,7 @@ src/.idea/**
 src/__pycache__/**
 bak/*
 */bak/*
+*/.iead/**
 
 #################
 ## Eclipse

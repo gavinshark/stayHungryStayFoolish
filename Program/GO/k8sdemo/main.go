@@ -17,6 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"k8s.io/client-go/util/retry"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -45,6 +46,27 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	//
+	dClient := clientset.AppsV1().Deployments("go-client")
+
+	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// Assumes you've already deployed nginx before to the cluster
+		result, getErr := dClient.Get(context.TODO(), "nginx-deployment", metav1.GetOptions{})
+		if getErr != nil {
+			panic(fmt.Errorf("Failed to get latest version of nginx-deployment: %s", getErr))
+		}
+
+		result.Spec.Template.Spec.Containers[0].Image = "nginx:1.19"
+		_, updateErr := dClient.Update(context.TODO(), result, metav1.UpdateOptions{})
+		return updateErr
+	})
+
+	if retryErr != nil {
+		panic(retryErr)
+	}
+	//
+
 	for {
 		// get pods in all the namespaces by omitting namespace
 		// Or specify namespace to get pods in particular namespace

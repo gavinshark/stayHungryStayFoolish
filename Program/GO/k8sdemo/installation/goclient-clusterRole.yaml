@@ -9,14 +9,14 @@ rules:
   - nodes/proxy
   - services
   - endpoints
-  - deployments
   - pods
-  verbs: ["update", "get", "list", "watch"]
+  verbs: ["get", "list", "watch"]
 - apiGroups:
   - extensions
   resources:
   - ingresses
-  verbs: ["get", "list", "watch"]
+  - deployments
+  verbs: ["update", "get", "list", "watch"]
 - nonResourceURLs: ["/metrics"]
   verbs: ["get"]
 ---

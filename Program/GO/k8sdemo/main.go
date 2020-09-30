@@ -48,7 +48,7 @@ func main() {
 	for {
 		// get pods in all the namespaces by omitting namespace
 		// Or specify namespace to get pods in particular namespace
-		pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+		pods, err := clientset.CoreV1().Pods("go-client").List(context.TODO(), metav1.ListOptions{})
 		if err != nil {
 			panic(err.Error())
 		}
@@ -57,15 +57,15 @@ func main() {
 		// Examples for error handling:
 		// - Use helper functions e.g. errors.IsNotFound()
 		// - And/or cast to StatusError and use its properties like e.g. ErrStatus.Message
-		_, err = clientset.CoreV1().Pods("default").Get(context.TODO(), "example-xxxxx", metav1.GetOptions{})
+		_, err = clientset.CoreV1().Pods("go-client").Get(context.TODO(), "nginx-deployment-7fdb6f477d-6p564", metav1.GetOptions{})
 		if errors.IsNotFound(err) {
-			fmt.Printf("Pod example-xxxxx not found in default namespace\n")
+			fmt.Printf("Pod nginx-deployment-7fdb6f477d-6p564 not found in go-client namespace\n")
 		} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
 			fmt.Printf("Error getting pod %v\n", statusError.ErrStatus.Message)
 		} else if err != nil {
 			panic(err.Error())
 		} else {
-			fmt.Printf("Found example-xxxxx pod in default namespace\n")
+			fmt.Printf("Found nginx-deployment-7fdb6f477d-6p564 pod in go-client namespace\n")
 		}
 
 		time.Sleep(10 * time.Second)

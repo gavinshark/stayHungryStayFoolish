@@ -14,4 +14,5 @@
 
 FROM debian
 COPY ./app /app
+RUN chmod 777 /app
 ENTRYPOINT /app

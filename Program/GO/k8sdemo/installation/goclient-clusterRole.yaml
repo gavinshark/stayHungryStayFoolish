@@ -13,10 +13,11 @@ rules:
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - extensions
+  - apps
   resources:
   - ingresses
   - deployments
-  verbs: ["update", "get", "list", "watch"]
+  verbs: ["get", "list", "watch", "update"]
 - nonResourceURLs: ["/metrics"]
   verbs: ["get"]
 ---

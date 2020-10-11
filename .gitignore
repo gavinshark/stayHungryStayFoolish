@@ -6,6 +6,8 @@ src/.idea/**
 src/__pycache__/**
 bak/*
 */bak/*
+*/.idea/**
+Program/GO/k8sdemo/app
 
 #################
 ## Eclipse

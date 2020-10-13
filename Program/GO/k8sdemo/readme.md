@@ -10,13 +10,13 @@
 
 go build -o ./app .
 
-docker build . -t goupdateclient:0.10
+docker build . -t goupdateclient:0.11
 
-docker tag goupdateclient:0.10 gaivnshark/goupdateclient:0.10
+docker tag goupdateclient:0.11 gaivnshark/goupdateclient:0.11
 
-docker push gaivnshark/goupdateclient:0.10
+docker push gaivnshark/goupdateclient:0.11
 
-kubectl set image -n go-client deployment/go-update-client go-update-client=gaivnshark/goupdateclient:0.10
+kubectl set image -n go-client deployment/go-update-client go-update-client=gaivnshark/goupdateclient:0.11
 
 kubectl get pod -n go-client
 

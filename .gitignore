@@ -1,6 +1,7 @@
 *.log*
 *.bak
 *.pyc
+*.exe
 
 src/.idea/**
 src/__pycache__/**

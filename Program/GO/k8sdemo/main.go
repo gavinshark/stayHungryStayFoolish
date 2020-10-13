@@ -48,7 +48,14 @@ func main() {
         }
 
         time.Sleep(30 * time.Second)
-        fmt.Printf("this is version 0.10\n")
+        fmt.Printf("this is version 0.11\n")
+
+        serverVersion, serverErr := clientset.DiscoveryClient.ServerVersion()
+        if serverErr != nil{
+                fmt.Printf("failed when clientset.DiscoveryClient.ServerVersion(), error=%s\n", serverErr)
+        } else {
+                fmt.Printf("ServerVersion.String=%s\n", serverVersion.String())
+        }
 
         //
         dClient := clientset.AppsV1().Deployments("go-client")

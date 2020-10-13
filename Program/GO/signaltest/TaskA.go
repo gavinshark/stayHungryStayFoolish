@@ -15,10 +15,12 @@ func (Task *TaskA) Init() bool {
 }
 
 func (Task *TaskA) GetInitTimeout() int {
-	return 1
+	return 10
 }
 
 func (Task *TaskA) Work() int {
-	fmt.Printf("woker A: current time is %s\n", time.Now().UTC())
-	return 1
+	fmt.Printf("woker A Start : current time is %s\n", time.Now().UTC())
+	time.Sleep(time.Duration(10) * time.Second)
+	fmt.Printf("woker A End   : current time is %s\n", time.Now().UTC())
+	return 10
 }

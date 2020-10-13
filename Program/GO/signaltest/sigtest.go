@@ -4,42 +4,52 @@ import (
     "fmt"
     "os"
     "os/signal"
+    "reflect"
     "sync"
     "syscall"
     "time"
 )
 
-func WorkerFunc(id int) int{
-    fmt.Printf("woker %d: current time is %s\n", id, time.Now().UTC())
-    return id
+type Task interface {
+    Init () bool
+    GetInitTimeout () int
+    Work () int
 }
 
-func WorkerDelegator(wg *sync.WaitGroup, id int){
+func WorkerDelegator(wg *sync.WaitGroup, task Task){
     defer wg.Done()
+
+    taskName := reflect.TypeOf(task).String()
+    fmt.Printf("%s start\n", taskName)
 
     ch := make(chan os.Signal, 1)
     signal.Notify(ch, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGKILL)
 
-    timeAfter := id
+    timeAfter := task.GetInitTimeout()
     for {
         select {
         case <- time.After(time.Duration(timeAfter) * time.Second):
-            timeAfter = WorkerFunc(id)
+            timeAfter = task.Work()
         case sig := <-ch:
-            fmt.Printf("worker %d: Listened event sig:%s\n", id, sig)
+            fmt.Printf("%s: Listened event sig:%s\n", taskName, sig)
             return
         }
-        fmt.Printf("worker %d: timeAfter %d\n", id, timeAfter)
+        fmt.Printf("%s: timeAfter %d\n", taskName, timeAfter)
     }
 }
 
 func main() {
     var wg sync.WaitGroup
 
-    for id := 1; id < 3; id++ {
-        fmt.Printf("Main: Start working with goroutinge %d\n", id)
+    var taskList = [...]Task{
+        new(TaskA),
+        new(TaskB),
+    }
+
+    for _, task := range taskList {
+        task.Init()
         wg.Add(1)
-        go WorkerDelegator(&wg, id)
+        go WorkerDelegator(&wg, task)
     }
 
     fmt.Println("Main: Waiting for workers to finish")

@@ -1,4 +1,4 @@
-# This is a version for coding study with tiny projects
+# This is a version for coding study with tiny projects.
 1. Algorithm
 - MachineLearning
 	- TainChi

@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: memleak
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memleak
+  namespace: memleak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memleak
+  template:
+    metadata:
+      name: memleak
+      labels:
+        app: memleak
+    spec:
+      containers:
+        - name: memleak
+          image: gavinshark/memleak:0.1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi

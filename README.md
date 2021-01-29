@@ -44,6 +44,7 @@
     - k8sdemo(GO) 
 - EMCAScript
     - memleak(nodejs)
+    - asyncStudy(nodejs)
 	
 3. Topic
 - ActiveDirectory

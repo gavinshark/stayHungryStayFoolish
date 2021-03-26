@@ -45,6 +45,9 @@
     - iterateStruct(GO)
     - k8sdemo(GO)
     - signaltest(GO)
+- EMCAScript
+    - memleak(nodejs)
+    - asyncStudy(nodejs)
 	
 3. Topic
 - ActiveDirectory

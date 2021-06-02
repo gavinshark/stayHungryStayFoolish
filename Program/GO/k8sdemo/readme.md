@@ -10,7 +10,7 @@
 
 go build -o ./app .
 
-gavingoclientversion=0.13
+gavingoclientversion=0.14
 docker build . -t goupdateclient:$gavingoclientversion
 
 docker tag goupdateclient:$gavingoclientversion gavinshark/goupdateclient:$gavingoclientversion

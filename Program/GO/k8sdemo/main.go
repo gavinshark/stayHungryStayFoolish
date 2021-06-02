@@ -124,13 +124,20 @@ func TestConfigMap(clientset *kubernetes.Clientset) {
 	configMapData := make(map[string]string, 0)
 	ns := "go-client"
 	cmname := "game-configmap"
-	uiProperties := fmt.Sprintf(`
-        color.good=purple
-        color.bad=yellow
-        allow.textmode=true
-        time=%s
-        `, time.Now().String())
-	configMapData["ui.properties"] = uiProperties
+
+	rules := fmt.Sprintf(
+		`groups:
+- name: devopscube demo alert
+    rules:
+    - alert: High Pod Memory
+    expr: sum(container_memory_usage_bytes) > 1
+    for: 1m
+    labels:
+      severity: slack
+    annotations:
+      summary: High Memory Usage %s`, time.Now().String())
+	configMapData["prometheus.rules"] = rules
+
 	configMap := corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
@@ -143,13 +150,25 @@ func TestConfigMap(clientset *kubernetes.Clientset) {
 		Data: configMapData,
 	}
 
-	if _, err := clientset.CoreV1().ConfigMaps(ns).Get(context.TODO(), cmname, metav1.GetOptions{}); errors.IsNotFound(err) {
-		clientset.CoreV1().ConfigMaps(ns).Create(context.TODO(), &configMap, metav1.CreateOptions{})
+	fmt.Printf("start to deal with ConfigMaps\n")
+
+	if oldconfigMap, err := clientset.CoreV1().ConfigMaps(ns).Get(context.TODO(), cmname, metav1.GetOptions{}); errors.IsNotFound(err) {
+		fmt.Printf("ConfigMaps start to create\n")
+		_, err = clientset.CoreV1().ConfigMaps(ns).Create(context.TODO(), &configMap, metav1.CreateOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
 		fmt.Printf("ConfigMaps created\n")
 	} else {
-		clientset.CoreV1().ConfigMaps(ns).Update(context.TODO(), &configMap, metav1.UpdateOptions{})
-		fmt.Printf("ConfigMaps updated\n")
+		fmt.Printf("ConfigMaps start to update\n")
+		oldconfigMap.Data["prometheus.rules"] = rules
+		clientset.CoreV1().ConfigMaps(ns).Update(context.TODO(), oldconfigMap, metav1.UpdateOptions{})
+		if err != nil {
+			panic(err.Error())
+		}
+		_, err = fmt.Printf("ConfigMaps updated\n")
 	}
+	time.Sleep(60 * time.Second)
 	fmt.Printf("TestConfigMap end\n")
 }
 
@@ -165,7 +184,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	time.Sleep(30 * time.Second)
+	time.Sleep(5 * time.Second)
 	fmt.Printf("this is version 0.14\n")
 
 	if false {
@@ -184,7 +203,9 @@ func main() {
 		PodsList(clientset)
 	}
 
-	if false {
+	if true {
 		TestConfigMap(clientset)
 	}
+
+	time.Sleep(100 * time.Second)
 }

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: game-configmap
+  labels:
+    name: game-configmap
+  namespace: go-client
+data:
+  ui.properties: |-
+      color.good=red  
+  backend.properties: |-
+      lang.good=go

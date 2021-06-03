@@ -41,7 +41,6 @@
 - NameMangling
     - NameMangling(C++)    
 - GO
-    - gziprequest(GO)
     - iterateStruct(GO)
     - k8sdemo(GO)
     - signaltest(GO)

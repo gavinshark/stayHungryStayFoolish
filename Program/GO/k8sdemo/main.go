@@ -17,6 +17,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -119,24 +121,166 @@ func PodsList(clientset *kubernetes.Clientset) {
 	}
 }
 
+func ReloadPromConfig(clientset *kubernetes.Clientset) {
+	fmt.Printf("[ReloadPromConfig] start")
+
+	postReq, err := http.NewRequest("POST", "http://gtsec-prom-service.greater-security.svc:8080/-/reload", strings.NewReader(""))
+
+	client := &http.Client{}
+	postResp, err := client.Do(postReq)
+	if err != nil {
+		panic(err)
+	}
+
+	if postResp.StatusCode != http.StatusOK {
+		fmt.Printf("[ReloadPromConfig] got an error code %d ", postResp.StatusCode)
+		postReq.Body.Close()
+	}
+	postReq.Body.Close()
+
+	fmt.Printf("[ReloadPromConfig] complete status code %d", postResp.StatusCode)
+}
+
 func TestConfigMap(clientset *kubernetes.Clientset) {
 	fmt.Printf("TestConfigMap start\n")
 	configMapData := make(map[string]string, 0)
-	ns := "go-client"
-	cmname := "game-configmap"
+	ns := "demo-ns"
+	cmname := "prometheus-server-conf"
 
-	rules := fmt.Sprintf(
-		`groups:
-- name: devopscube demo alert
-    rules:
-    - alert: High Pod Memory
-    expr: sum(container_memory_usage_bytes) > 1
-    for: 1m
-    labels:
-      severity: slack
-    annotations:
-      summary: High Memory Usage %s`, time.Now().String())
-	configMapData["prometheus.rules"] = rules
+	ymlfile := fmt.Sprintf(
+		`global:
+  scrape_interval: 1m
+  evaluation_interval: 1m
+rule_files:
+  - /etc/prometheus/prometheus.rules
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - "alertmanager.monitoring.svc:9093"
+
+scrape_configs:
+  - job_name: 'kubernetes-apiservers'
+
+    kubernetes_sd_configs:
+    - role: endpoints
+    scheme: https
+
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+      action: keep
+      regex: default;kubernetes;https
+
+  - job_name: 'kubernetes-nodes'
+
+    scheme: https
+
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+    kubernetes_sd_configs:
+    - role: node
+
+    relabel_configs:
+    - action: labelmap
+      regex: __meta_kubernetes_node_label_(.+)
+    - target_label: __address__
+      replacement: kubernetes.default.svc:443
+    - source_labels: [__meta_kubernetes_node_name]
+      regex: (.+)
+      target_label: __metrics_path__
+      replacement: /api/v1/nodes/${1}/proxy/metrics
+
+  
+  - job_name: 'kubernetes-pods'
+
+    kubernetes_sd_configs:
+    - role: pod
+
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      action: keep
+      regex: true
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+      action: replace
+      regex: ([^:]+)(?::\d+)?;(\d+)
+      replacement: $1:$2
+      target_label: __address__
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
+    - source_labels: [__meta_kubernetes_namespace]
+      action: replace
+      target_label: kubernetes_namespace
+    - source_labels: [__meta_kubernetes_pod_name]
+      action: replace
+      target_label: kubernetes_pod_name
+  
+  - job_name: 'kube-state-metrics'
+    static_configs:
+      - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+
+  - job_name: 'kubernetes-cadvisor'
+
+    scheme: https
+
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+    kubernetes_sd_configs:
+    - role: node
+
+    relabel_configs:
+    - action: labelmap
+      regex: __meta_kubernetes_node_label_(.+)
+    - target_label: __address__
+      replacement: kubernetes.default.svc:443
+    - source_labels: [__meta_kubernetes_node_name]
+      regex: (.+)
+      target_label: __metrics_path__
+      replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+  
+  - job_name: 'kubernetes-service-endpoints'
+
+    kubernetes_sd_configs:
+    - role: endpoints
+
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+      action: keep
+      regex: true
+    - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+      action: replace
+      target_label: __scheme__
+      regex: (https?)
+    - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+      action: replace
+      target_label: __address__
+      regex: ([^:]+)(?::\d+)?;(\d+)
+      replacement: $1:$2
+    - action: labelmap
+      regex: __meta_kubernetes_service_label_(.+)
+    - source_labels: [__meta_kubernetes_namespace]
+      action: replace
+      target_label: kubernetes_namespace
+    - source_labels: [__meta_kubernetes_service_name]
+      action: replace
+      target_label: kubernetes_name`)
+	configMapData["prometheus.yml"] = ymlfile
 
 	configMap := corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -161,14 +305,13 @@ func TestConfigMap(clientset *kubernetes.Clientset) {
 		fmt.Printf("ConfigMaps created\n")
 	} else {
 		fmt.Printf("ConfigMaps start to update\n")
-		oldconfigMap.Data["prometheus.rules"] = rules
+		oldconfigMap.Data["prometheus.yml"] = ymlfile
 		clientset.CoreV1().ConfigMaps(ns).Update(context.TODO(), oldconfigMap, metav1.UpdateOptions{})
 		if err != nil {
 			panic(err.Error())
 		}
 		_, err = fmt.Printf("ConfigMaps updated\n")
 	}
-	time.Sleep(60 * time.Second)
 	fmt.Printf("TestConfigMap end\n")
 }
 
@@ -185,7 +328,6 @@ func main() {
 	}
 
 	time.Sleep(5 * time.Second)
-	fmt.Printf("this is version 0.14\n")
 
 	if false {
 		K8sVersionFetch(clientset)
@@ -205,7 +347,11 @@ func main() {
 
 	if true {
 		TestConfigMap(clientset)
+		fmt.Printf("time.Sleep(120 * time.Second) start")
+		time.Sleep(120 * time.Second)
+		fmt.Printf("time.Sleep(120 * time.Second) end")
+		ReloadPromConfig(clientset)
 	}
 
-	time.Sleep(100 * time.Second)
+	time.Sleep(500 * time.Second)
 }

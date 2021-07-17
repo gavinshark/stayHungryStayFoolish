@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: go-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-server
+  namespace: go-server
+  labels:
+    app: go-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-server
+  template:
+    metadata:
+      labels:
+        app: go-server
+    spec:
+      containers:
+        - name: go-server
+          image: gaivnshark/goupdateclient:0.1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-server
+  namespace: go-server
+spec:
+  type: ClusterIP
+  selector:
+    app: go-server
+  ports:
+  - name: http
+    port: 5001
+    targetPort: 5001         

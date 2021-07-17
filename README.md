@@ -41,7 +41,9 @@
 - NameMangling
     - NameMangling(C++)    
 - GO
-    - k8sdemo(GO) 
+    - iterateStruct(GO)
+    - k8sdemo(GO)
+    - signaltest(GO)
 - EMCAScript
     - memleak(nodejs)
     - asyncStudy(nodejs)

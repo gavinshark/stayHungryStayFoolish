@@ -1,35 +1,11 @@
 apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRole
-metadata:
-  name: go-client
-rules:
-- apiGroups: [""]
-  resources:
-  - nodes
-  - nodes/proxy
-  - services
-  - endpoints
-  - pods
-  - namespaces
-  verbs: ["get", "list", "watch", "delete"]
-- apiGroups:
-  - extensions
-  - apps
-  resources:
-  - ingresses
-  - deployments
-  verbs: ["get", "list", "watch", "update"]
-- nonResourceURLs: ["/metrics"]
-  verbs: ["get"]
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: go-client
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: go-client
+  name: cluster-admin
 subjects:
 - kind: ServiceAccount
   name: default

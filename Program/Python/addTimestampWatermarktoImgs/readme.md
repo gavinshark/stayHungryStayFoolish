@@ -1,0 +1,1 @@
+add timestamp watermark to images in current folder

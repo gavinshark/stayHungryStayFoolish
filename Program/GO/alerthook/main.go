@@ -53,19 +53,19 @@ func alertFunc(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	fmt.Printf("body is %s\n", string(body[:]))
+	fmt.Printf("%s body is %s\n", time.Now(), string(body[:]))
 
 	err = json.Unmarshal(body, &alert)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(alert.Status)
+	fmt.Printf("%s alert.Status is %s\n", time.Now(), alert.Status)
 
 	if alert.Status == "firing" {
 		for _, v := range alert.Alerts {
 			if v.Labels.Severity == "warning" {
-				fmt.Println("The service " + v.Labels.Service + " is broken")
+				fmt.Printf("%s The service %s is broken\n", time.Now(), v.Labels.Service)
 			}
 		}
 	}

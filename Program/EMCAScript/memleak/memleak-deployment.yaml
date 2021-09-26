@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: memleak
-          image: gavinshark/memleak:0.1
+          image: gavinshark/memleak:0.2
           resources:
             requests:
               cpu: 100m

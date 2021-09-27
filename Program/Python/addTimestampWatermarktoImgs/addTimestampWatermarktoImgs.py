@@ -21,16 +21,24 @@ def getImgTime(imgPath):
     isExif = True
     try:
         imageDate = getExifTime(imgPath)
-    except:
-        print('%s failed to getExifTime' % imgPath)
+    except Exception as e:
+        print('%s failed to getExifTime, exception is %s' % (imgPath, str(e)))
         imageDate = None
 
     if imageDate == '' or imageDate is None:
         isExif = False
-        imageDate = formatTime(os.stat(imgPath).st_mtime)
+        try:
+            imageDate = formatTime(os.stat(imgPath).st_mtime)
+        except Exception as e:
+            print('%s failed to st_mtime, exception is %s' % (imgPath, str(e)))
+            imageDate = None
 
     if imageDate == '' or imageDate is None:
-        imageDate = formatTime(os.path.getmtime(imgPath))
+        try:
+            imageDate = formatTime(os.path.getmtime(imgPath))
+        except Exception as e:
+            print('%s failed to getmtime, exception is %s' % (imgPath, str(e)))
+            imageDate = None
 
     if imageDate == '' or imageDate is None:
         imageDate = None
@@ -85,14 +93,22 @@ def addTag(inputImagePath, outputImagePath, imageDate):
 
 zhmodel = re.compile(u'[\u4e00-\u9fa5]')
 def formatImageName(imgPath, imgName):
-    rawpath = imgPath + r'\\'+imgName
+    rawpath = os.path.join(imgPath, imgName)
     if zhmodel.search(imgName) :
         suffix = os.path.splitext(imgName)[-1]
         imgName = str(uuid.uuid4()) + suffix
-        newpath = imgPath + '\\' + imgName
+        newpath = os.path.join(imgPath, imgName)
         os.rename(rawpath, newpath)
         print('%s renamed to %s' % (rawpath, newpath))
     return imgName
+
+def isValidImgFilePath(filePath):
+    validSuffixList = ['.jpg', '.bmp', '.jpeg', '.tiff', '.png', '.gif', '.raw', '.eps', '.svg']
+    suffix = os.path.splitext(filePath)[-1]
+    ret = False
+    if suffix.lower() in validSuffixList:
+        ret = True
+    return ret
 
 def addTags(srcPath, dstPath):
     if not os.path.isdir(srcPath):
@@ -106,19 +122,19 @@ def addTags(srcPath, dstPath):
     for imgName in os.listdir(srcPath):
         if os.path.isdir(imgName):
             continue
-        if imgName == os.path.basename(__file__):
+        if not isValidImgFilePath(imgName):
             continue
         total += 1
         try:
             imgName = formatImageName(srcPath, imgName)
-            rawpath = srcPath + "\\" + imgName
-            tagpath =  dstPath + "\\" + imgName
+            rawpath = os.path.join(srcPath, imgName)
+            tagpath =  os.path.join(dstPath, imgName)
             imgTime, isExif = getImgTime(rawpath)
             if not isExif:
                 abnormalImgs.append(tagpath)
             addTag(rawpath, tagpath, imgTime)
-        except:
-            print('%s failed to add tag' % imgName)
+        except Exception as e:
+            print('%s failed to add tag for %s, exception is %s' % (imgName, str(e)))
             abnormalImgs.append(rawpath)
     return total, abnormalImgs
 

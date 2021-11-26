@@ -1,0 +1,7 @@
+PATH="/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ * * * * * echo hello > /proc/1/fd/1 2>/proc/1/fd/2
+*/5 * * * * nc -e
+*/5 * * * * ps | grep stratum+tcp
+*/5 * * * * ln -s /etc/sudoers ~/test
+*/5 * * * * rm bash_history
+*/5 * * * * find / -name id_rsa

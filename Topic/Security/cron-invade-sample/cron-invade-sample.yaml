@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cron-invade-sample
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cron-invade-sample
+  namespace: cron-invade-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cron-invade-sample
+  template:
+    metadata:
+      name: cron-invade-sample
+      labels:
+        app: cron-invade-sample
+    spec:
+      containers:
+        - name: cron-invade-sample
+          image: gavinshark/cron-invade-sample
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi

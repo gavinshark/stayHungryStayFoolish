@@ -39,6 +39,7 @@ int main()
 	}
     char send_buf[200];
     char accept_buf[200];
+    int iResult = 0;
     while(true)
     {
         cout<<"input client message:"<<endl;
@@ -55,9 +56,9 @@ int main()
         }
         cout<<"send success, wait the server response"<<endl;
         memset(accept_buf,0,sizeof(accept_buf));
-        while (strlen(accept_buf) == 0)
+        //while (strlen(accept_buf) == 0)
         {
-            recv(s_server, accept_buf, sizeof(accept_buf)-1, 0);
+            iResult = recv(s_server, accept_buf, sizeof(accept_buf)-1, 0);
         }        
         cout<<"server response:"<<accept_buf<<endl;
     }

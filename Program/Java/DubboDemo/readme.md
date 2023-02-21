@@ -15,7 +15,7 @@
 
 
 ## 2.Provider & Consumer
-refer to http://dubbo.apache.org/zh-cn/docs/user/quick-start.html
+refer to https://dubbo.apache.org/zh/overview/quickstart/
 ### 2.1 Provider - User Service
 1. pom.xml for dependencies
 2. provider.xml for dubbo 

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.gavinshark.mybatisDemo.SalaryDao">
-    <select id="getSalaryById" resultType="com.gavinshark.mybatisDemo.Salary">
-        select * from tbl_salary where id = #{id}
-    </select>
-</mapper>

@@ -12,4 +12,10 @@
     <select id="selectStudent" resultType="Student">
         select * from gavintb where id = #{id}
     </select>
+
+    <update id="updateStudent" flushCache="true">
+        update gavintb set
+            name = #{name}
+        where id = #{id}
+    </update>
 </mapper>

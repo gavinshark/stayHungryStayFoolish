@@ -37,4 +37,19 @@ public class StudentDaoImp implements StudentDao{
         }
         return student;
     }
+
+    @Override
+    public Boolean UpdateStudent(Integer id, String name){
+        Integer iRet = 0;
+
+        try (SqlSession session = sqlSessionFactory.openSession(true)) {
+            StudentMapper mapper = session.getMapper(StudentMapper.class);
+            Student student = new Student(id, name);
+            iRet = mapper.updateStudent(student);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return iRet==1;
+    }
 }

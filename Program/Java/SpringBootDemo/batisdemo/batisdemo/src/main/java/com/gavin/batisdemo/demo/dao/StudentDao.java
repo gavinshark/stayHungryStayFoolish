@@ -5,6 +5,8 @@ import com.gavin.batisdemo.demo.pojo.Student;
 
 @Mapper
 public interface StudentDao {
-    public Student selectByPrimaryKey(Integer id);
+    Student selectByPrimaryKey(Integer id);
+
+    Boolean UpdateStudent(Integer id, String name);
 }
 

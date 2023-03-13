@@ -3,18 +3,21 @@ package com.gavin.batisdemo.demo.service;
 
 import com.gavin.batisdemo.demo.pojo.Student;
 import com.gavin.batisdemo.demo.dao.StudentDao;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Slf4j
 public class StudentServiceImp implements StudentService{
     @Autowired
     private StudentDao studentDao;
 
     @Override
     public Student GetStudentByid(Integer id){
+        log.info(String.format("GetStudentByid %d", id));
         Student student = studentDao.selectByPrimaryKey(id);
         return student;
     }

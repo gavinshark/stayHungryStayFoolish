@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+						http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+         http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- 第2步：引入外部的数据库配置描述文件 -->
+    <context:property-placeholder location="classpath:application.properties" />
+
+    <!-- 第3步：配置数据源连接池：C3P0,DBCP2,DRUID -->
+    <!-- destroy-method="close" 该方法代表spring容器在销毁时，需要调用close()，关闭掉所有的数据库连接对象 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <!-- 配置4个最基本的连接属性 -->
+        <property name="driverClassName" value="${spring.datasource.driver-class-name}"></property>
+        <property name="url" value="${spring.datasource.url}"></property>
+        <property name="username" value="${spring.datasource.username}"></property>
+        <property name="password" value="${spring.datasource.password}"></property>
+    </bean>
+
+    <!-- 第4步，配置SessionFactory -->
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+    </bean>
+
+    <!-- 第5步，配置MapperScanner -->
+    <bean id="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+
+        <!-- basePackage 以包为单位，批量扫描包中的映射关系 如果存在多个包同时需要扫描，包和包之间，采用;或者,间隔 -->
+        <property name="basePackage" value="com.gavin.batisdemo.dao"></property>
+        <property name="sqlSessionFactoryBeanName" value="sessionFactory"></property>
+    </bean>
+
+    <!-- 第6步，配置事务管理器 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <!-- 第7步，配置spring管理事务。它的2种方式：编程式事务管理，声明式事务管理 -->
+    <!-- 编程式事务管理 需要在业务类中，借助TransactionTemplate，PlatformTransactionManager 完成对业务逻辑
+        的逻辑事务管理，不推荐使用 -->
+
+    <!-- 声明式事务管理，第1种方式，采用AOP管理业务逻辑事务 -->
+    <!-- <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+
+            <tx:method name="*" read-only="true" propagation="SUPPORTS" />
+            <tx:method name="save*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="add*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="insert*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="create*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="update*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="modify*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="change*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="delete*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+            <tx:method name="remove*" read-only="false" rollback-for="java.lang.Exception"
+                propagation="REQUIRED" />
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="txMagPoint"
+            expression="execution(* com.ali.sm.*mag.service.impl.*.*(..))" />
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txMagPoint" />
+    </aop:config> -->
+
+
+
+    <!-- 声明式事务管理，第2种方式，使用@Transactional管理业务逻辑事务 -->
+    <!-- 开启事务的注解支持 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+
+    <!-- 第8步，开启切面动态代理支持 -->
+    <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+</beans>

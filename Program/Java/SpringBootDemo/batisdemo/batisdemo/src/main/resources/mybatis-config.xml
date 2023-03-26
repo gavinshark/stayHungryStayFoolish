@@ -4,32 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 
-    <properties resource="application.properties"></properties>
-
     <typeAliases>
         <typeAlias type="com.gavin.batisdemo.demo.pojo.Student" alias="Student"/>
     </typeAliases>
 
-
-    <environments default="development">
-        <environment id="development">
-            <transactionManager type="JDBC"/>
-            <dataSource type="POOLED">
-                <property name="driver" value="${jdbc.driver}"/>
-                <property name="url" value="${jdbc.url}"/>
-                <property name="username" value="${jdbc.username}"/>
-                <property name="password" value="${jdbc.password}"/>
-                <!--最大连接数-->
-                <property name="poolMaximumActiveConnections" value="3"/>
-                <!--这是一个底层设置，如果获取连接花费了相当长的时间，连接池会打印状态日志并重新尝试获取一个连接（避免在误配置的情况下一直失败且不打印日志），默认值：20000 毫秒（即 20 秒）。-->
-                <property name="poolTimeToWait" value="20000"/>
-                <!--强行回归池的时间-->
-                <property name="poolMaximumCheckoutTime" value="20000"/>
-                <!--最多空闲数量-->
-                <property name="poolMaximumIdleConnections" value="1"/>
-            </dataSource>
-        </environment>
-    </environments>
     <mappers>
         <mapper resource="com/gavin/batisdemo/demo/dao/StudentMapper.xml"/>
     </mappers>

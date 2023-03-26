@@ -18,7 +18,7 @@ public class StudentDaoImp implements StudentDao{
 
     static {
         try {
-            Reader reader = Resources.getResourceAsReader("com/gavin/batisdemo/demo/dao/mybatis-config.xml");
+            Reader reader = Resources.getResourceAsReader("mybatis-config.xml");
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
         } catch (IOException e){
             e.printStackTrace();

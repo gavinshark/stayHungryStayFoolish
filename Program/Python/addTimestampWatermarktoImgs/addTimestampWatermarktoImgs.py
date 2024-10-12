@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from PIL import Image
 import os
+import re
 import time
 import cv2
 import re
@@ -19,11 +20,18 @@ def getExifTime(imagePath):
 def getImgTime(imgPath):
     imageDate = None
     isExif = True
-    try:
-        imageDate = getExifTime(imgPath)
-    except Exception as e:
-        print('%s failed to getExifTime, exception is %s' % (imgPath, str(e)))
-        imageDate = None
+	
+    file_name_with_extension = os.path.basename(imgPath)
+    match_obj = re.match(r'^(\d{4}\-\d{2}\-\d{2}).*', file_name_with_extension)
+    if match_obj:
+        imageDate = match_obj.group(1)	
+	
+    if imageDate == '' or imageDate is None:
+        try:
+            imageDate = getExifTime(imgPath)
+        except Exception as e:
+            print('%s failed to getExifTime, exception is %s' % (imgPath, str(e)))
+            imageDate = None
 
     if imageDate == '' or imageDate is None:
         isExif = False

@@ -112,7 +112,7 @@ def isValidImgFilePath(filePath):
         ret = True
     return ret
 
-def addTags(srcPath, dstPath):
+def changeNameAndCopyFiles(srcPath, dstPath):
     if not os.path.isdir(srcPath):
         print('source path: %s does not exist' % srcPath)
         return 0,[]
@@ -122,14 +122,16 @@ def addTags(srcPath, dstPath):
     total = 0
     abnormalImgs = []
     for imgName in os.listdir(srcPath):
+        imgName = formatImageName(srcPath, imgName)
+        rawpath = os.path.join(srcPath, imgName)
         if os.path.isdir(imgName):
+            abnormalImgs.append(rawpath)
             continue
         if not isValidImgFilePath(imgName):
+            abnormalImgs.append(rawpath)
             continue
         total += 1
         try:
-            imgName = formatImageName(srcPath, imgName)
-            rawpath = os.path.join(srcPath, imgName)
             imgTime, isExif = getImgTime(rawpath)
             result = re.sub(r':', '-', imgTime, flags=re.IGNORECASE)
             print(result)
@@ -140,14 +142,14 @@ def addTags(srcPath, dstPath):
             shutil.copyfile(rawpath, tagpath)
 			
         except Exception as e:
-            print('failed to add tag for %s, exception is %s' % (imgName, str(e)))
+            print('failed to add tag for %s, exception is %s, but we still copy the files' % (imgName, str(e)))
             abnormalImgs.append(rawpath)
     return total, abnormalImgs
 
 srcPath = '.'
-dstPath = 'dst'
+dstPath = 'dst_copied_name_with_date'
 print('start to add tags from %s to %s:\n' % (srcPath, dstPath))
-total, abnormalImgs = addTags(srcPath, dstPath)
+total, abnormalImgs = changeNameAndCopyFiles(srcPath, dstPath)
 print('\n\nend with %d images adding tags, %d is abnormal' % (total, len(abnormalImgs)))
 if len(abnormalImgs) >0 :
     for img in abnormalImgs:

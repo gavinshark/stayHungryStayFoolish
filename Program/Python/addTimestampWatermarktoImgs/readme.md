@@ -1,7 +1,7 @@
 add timestamp watermark to images
 
 # how to use
-python 3
+python 3.10
 pip install -r requirement.txt
 
 1.put changeImgNameByTime.py to images folder and python changeImgNameByTime.py

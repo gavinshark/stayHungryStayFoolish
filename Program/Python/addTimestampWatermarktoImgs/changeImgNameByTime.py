@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from PIL import Image
 import os
-import re
 import time
 import cv2
 import re
 import uuid
+import shutil
+from datetime import date
 
 def formatTime(secs):
-    str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(secs))
+    str = time.strftime("%Y-%m-%d", time.localtime(secs))
     return str
 
 def getExifTime(imagePath):
@@ -20,18 +21,11 @@ def getExifTime(imagePath):
 def getImgTime(imgPath):
     imageDate = None
     isExif = True
-	
-    file_name_with_extension = os.path.basename(imgPath)
-    match_obj = re.match(r'^(\d{4}\-\d{2}\-\d{2}).*', file_name_with_extension)
-    if match_obj:
-        imageDate = match_obj.group(1)	
-	
-    if imageDate == '' or imageDate is None:
-        try:
-            imageDate = getExifTime(imgPath)
-        except Exception as e:
-            print('%s failed to getExifTime, exception is %s' % (imgPath, str(e)))
-            imageDate = None
+    try:
+        imageDate = getExifTime(imgPath)
+    except Exception as e:
+        print('%s failed to getExifTime, exception is %s' % (imgPath, str(e)))
+        imageDate = None
 
     if imageDate == '' or imageDate is None:
         isExif = False
@@ -118,7 +112,7 @@ def isValidImgFilePath(filePath):
         ret = True
     return ret
 
-def addTags(srcPath, dstPath):
+def changeNameAndCopyFiles(srcPath, dstPath):
     if not os.path.isdir(srcPath):
         print('source path: %s does not exist' % srcPath)
         return 0,[]
@@ -128,28 +122,34 @@ def addTags(srcPath, dstPath):
     total = 0
     abnormalImgs = []
     for imgName in os.listdir(srcPath):
+        imgName = formatImageName(srcPath, imgName)
+        rawpath = os.path.join(srcPath, imgName)
         if os.path.isdir(imgName):
+            abnormalImgs.append(rawpath)
             continue
         if not isValidImgFilePath(imgName):
+            abnormalImgs.append(rawpath)
             continue
         total += 1
         try:
-            imgName = formatImageName(srcPath, imgName)
-            rawpath = os.path.join(srcPath, imgName)
-            tagpath =  os.path.join(dstPath, imgName)
             imgTime, isExif = getImgTime(rawpath)
-            if not isExif:
-                abnormalImgs.append(tagpath)
-            addTag(rawpath, tagpath, imgTime)
+            result = re.sub(r':', '-', imgTime, flags=re.IGNORECASE)
+            print(result)
+            tagpath =  os.path.join(dstPath, result+imgName)
+            #if not isExif:
+            #    abnormalImgs.append(tagpath)
+            #addTag(rawpath, tagpath, imgTime)
+            shutil.copyfile(rawpath, tagpath)
+			
         except Exception as e:
-            print('%s failed to add tag for %s, exception is %s' % (imgName, str(e)))
+            print('failed to add tag for %s, exception is %s, but we still copy the files' % (imgName, str(e)))
             abnormalImgs.append(rawpath)
     return total, abnormalImgs
 
 srcPath = '.'
-dstPath = 'dst'
+dstPath = 'dst_copied_name_with_date'
 print('start to add tags from %s to %s:\n' % (srcPath, dstPath))
-total, abnormalImgs = addTags(srcPath, dstPath)
+total, abnormalImgs = changeNameAndCopyFiles(srcPath, dstPath)
 print('\n\nend with %d images adding tags, %d is abnormal' % (total, len(abnormalImgs)))
 if len(abnormalImgs) >0 :
     for img in abnormalImgs:

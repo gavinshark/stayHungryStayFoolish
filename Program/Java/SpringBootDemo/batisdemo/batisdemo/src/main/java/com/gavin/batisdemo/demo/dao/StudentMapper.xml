@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gavin.batisdemo.demo.dao.StudentMapper">
+
+    <resultMap id="studentMap" type="com.gavin.batisdemo.demo.pojo.Student">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="selectStudent" resultMap="studentMap">
+        select * from gavintb where id = #{id}
+    </select>
+
+    <update id="updateStudent" flushCache="true">
+        update gavintb set
+            name = #{name}
+        where id = #{id}
+    </update>
+</mapper>

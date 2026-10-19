@@ -10,7 +10,7 @@ from openai import OpenAI
 def simple_chat_test(client):
     try:
         completion = client.chat.completions.create(
-            model="deepseek-r1", # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
+            model="deepseek-v4-flash", # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
             messages=[
                 #system 就是 prompt
                 {'role': 'system', 'content': 'You are a helpful ElasticSearch assistant. The ElasticSearch version is 6.8.'},
@@ -328,12 +328,12 @@ if __name__ == "__main__":
         #api_key='sk-12345678', # 如何获取API Key：https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
     )
-    #simple_chat_test(client)
+    simple_chat_test(client)
     #conversation_chat_test(client)
     #flowoutput_chat_test(client)
     #function_call_test(client)
     #multi_model_visual_understand_test(client)
     #multi_model_visual_think_test(client)
-    embedding_test(client)
+    #embedding_test(client)
 
 

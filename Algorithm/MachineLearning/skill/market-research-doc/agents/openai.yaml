@@ -1,0 +1,4 @@
+interface:
+  display_name: "市场调研文档撰写"
+  short_description: "按背景/现状/需求/方案选型四章撰写技术调研与选型文档"
+  default_prompt: "Use $market-research-doc to research this technology direction and draft the 背景/现状/需求/方案选型 document."

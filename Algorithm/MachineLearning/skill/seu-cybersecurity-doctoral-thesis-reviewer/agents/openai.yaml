@@ -1,0 +1,7 @@
+interface:
+  display_name: "东南大学网安工程博士论文审核"
+  short_description: "审核与修改东南大学网络信息安全工程博士论文"
+  default_prompt: "请使用 $seu-cybersecurity-doctoral-thesis-reviewer 根据审核结果修改这篇论文，逐条落实意见并输出修改日志、未决事项和回归检查。"
+
+policy:
+  allow_implicit_invocation: true

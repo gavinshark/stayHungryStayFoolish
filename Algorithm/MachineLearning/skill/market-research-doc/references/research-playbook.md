@@ -5,7 +5,7 @@
 1. 官方文档、规范、架构白皮书
 2. 大厂工程博客与生产实践（Google、Meta、Netflix、Uber、字节、阿里、腾讯、蚂蚁、华为、CNCF 项目博客）
 3. GitHub 仓库本身（star、贡献者、发布节奏、issue 响应、license、生产案例）
-4. 基准测试、论文、会议分享
+4. 基准测试、论文、会议分享（含 QCon 等工程会议）
 5. 第三方分析报告（只作背景，不作为技术证据）
 
 ## 检索式模板
@@ -16,7 +16,32 @@
 - `<topic> benchmark` / `<topic> 性能测试`
 - `site:github.com <topic>` + 按 star 排序
 - `site:engineering.<company>.com <topic>`
+- `site:qcon.infoq.cn <topic>`
+- `QCon <topic> 架构` / `QCon <topic> 生产实践`
 - `<topic> 选型 踩坑` / `<topic> 迁移`
+
+## QCon（InfoQ）探索
+
+QCon 是 InfoQ 主办的技术大会，议程、Track 与演讲页可作为中文工程实践与生产案例来源，适合智能研发、平台中间件、可观测、架构演进等主题。
+
+**入口与 URL 规律**：
+
+- 官网首页：https://qcon.infoq.cn/
+- 届次日程：`https://qcon.infoq.cn/<year>/<city>/schedule`
+  - 例：2026 上海 https://qcon.infoq.cn/2026/shanghai/schedule
+  - 往届同样适用：2025 北京/上海、2024 上海等
+- Track：`https://qcon.infoq.cn/<year>/<city>/track/<id>`
+- 演讲详情：`https://qcon.infoq.cn/<year>/<city>/presentation/<id>`
+
+**探索步骤**：
+
+1. 先看目标届次的 schedule，按主题/关键词筛选候选 session，记录标题、讲者、公司、Track、年份与城市。
+2. 打开 presentation 页，提取摘要、关键架构、量化指标、落地规模与踩坑；如有 PPT/视频，记录链接。
+3. 优先采用大厂生产实践与有量化数据的 session；厂商软文式分享只作线索，不作技术证据。
+4. 关键结论至少与官方文档或第二个独立来源交叉验证。
+5. 引用时写明 session 标题、讲者/公司、届次（年/城市）与访问日期。
+
+**限制**：QCon 演讲以经验分享为主，版本与时效性需核对；部分内容需登录或仅现场可见。不要把议程标题当作已证实的技术结论。
 
 ## GitHub 评估清单
 

@@ -47,7 +47,7 @@ description: 撰写技术方向的市场调研文档：固定按「背景 / 现�
 - 行业现状至少覆盖 **3-4 个主流方案**，优先大厂工程实践与高 star 开源项目
 - 每个方案给出：定位、架构要点、关键能力、适用规模、成熟度、成本、局限
 - 至少 2 个独立来源交叉验证关键数字；记录版本与访问日期
-- 中文工程实践可补充 QCon（InfoQ 主办，<https://qcon.infoq.cn/）：按届次/城市查看议程（如> 2026 上海 <https://qcon.infoq.cn/2026/shanghai/schedule），并按> [research-playbook.md](references/research-playbook.md) 的「QCon（InfoQ）探索」执行；QCon 演讲以经验分享为主，关键结论仍需官方文档或第二个独立来源交叉验证
+- 中文工程实践可补充 QCon（InfoQ 主办，<https://qcon.infoq.cn/）：按届次/城市查看议程（如 2026 上海 <https://qcon.infoq.cn/2026/shanghai/schedule），并按 [research-playbook.md](references/research-playbook.md) 的「QCon（InfoQ）探索」执行；QCon 演讲以经验分享为主，关键结论仍需官方文档或第二个独立来源交叉验证
 
 ### 3. 撰写正文四章与参考链接
 
